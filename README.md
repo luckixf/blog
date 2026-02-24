@@ -6,7 +6,7 @@
 
 ## 预览
 
-![Astro Doge](https://img.shields.io/badge/Astro-Doge-blue?style=flat-square)
+![Astro Doge](./preview.webp)
 
 ## 特性
 
