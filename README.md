@@ -8,6 +8,13 @@
 
 ![Astro Doge](./preview.webp)
 
+<details>
+  <summary>Lighthouse 指数全部通过，性能极佳，展开查看</summary>
+
+![Lighthouse](./lighthouse.webp)
+
+  <br />
+
 ## 特性
 
 - **静态优先** — 默认输出纯静态文件，部署到任何平台
