@@ -21,9 +21,9 @@
 	"dependencies": {
 		"@astrojs/check": "^0.9.6",
 		"@astrojs/mdx": "4.3.13",
+		"@astrojs/netlify": "^7.0.7",
 		"@astrojs/rss": "4.0.15",
 		"@astrojs/sitemap": "3.7.0",
-		"@astrojs/vercel": "^10.0.4",
 		"@fontsource/inter": "^5.2.8",
 		"@fontsource/lora": "^5.2.8",
 		"@tailwindcss/typography": "^0.5.19",

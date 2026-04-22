@@ -1,4 +1,4 @@
-import vercel from '@astrojs/vercel'
+import netlify from '@astrojs/netlify'
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -15,7 +15,7 @@ export default defineConfig({
 	compressHTML: true,
 
 	output: 'server',
-    adapter: vercel(),
+    adapter: netlify(),
 
 	build: {
 		inlineStylesheets: "auto",
