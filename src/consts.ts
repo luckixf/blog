@@ -2,7 +2,7 @@ import type { Metadata, Projects, Site, Socials, TechStack } from "@types";
 
 export const SITE: Site = {
 	NAME: "Astro Doge",
-	EMAIL: "hi@example.com",
+	EMAIL: "SzLiuXiangfu@outlook.com",
 	DESCRIPTION: "一个简洁轻量的 Astro 博客主题.",
 	NUM_POSTS_ON_HOMEPAGE: 4,
 	NUM_THOUGHTS_ON_HOMEPAGE: 3,
@@ -45,13 +45,13 @@ export const PROJECTS: Projects = [
 		items: [
 			{
 				name: "My Blog",
-				href: "https://github.com/username/blog",
+				href: "https://github.com/luckixf/blog",
 				homepage: "https://example.com",
 				description: "我的个人博客，基于 Astro Doge 主题",
 			},
 			{
 				name: "Side Project",
-				href: "https://github.com/username/side-project",
+				href: "https://github.com/luckixf/side-project",
 				badge: "WIP",
 				description: "一个正在开发中的项目",
 			},
@@ -95,6 +95,6 @@ export const TECH_STACK: TechStack = [
 export const SOCIALS: Socials = [
 	{
 		NAME: "GitHub",
-		HREF: "https://github.com/username",
+		HREF: "https://github.com/luckixf",
 	},
 ];

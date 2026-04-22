@@ -1,3 +1,4 @@
+import vercel from '@astrojs/vercel'
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,10 +11,11 @@ import remarkDemoteH1ToH2 from "./src/lib/remark/remark-demote-h1.mjs";
 import remarkExternalLinks from "./src/lib/remark/remark-external-links.mjs";
 
 export default defineConfig({
-	site: "https://example.com/",
+	site: "https://blog.luckixf.top/",
 	compressHTML: true,
 
-	output: "static",
+	output: 'server',
+    adapter: vercel(),
 
 	build: {
 		inlineStylesheets: "auto",
