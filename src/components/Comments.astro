@@ -8,10 +8,12 @@ interface Props {
   title: string
 }
 
-const { slug, title } = Astro.props
-
 // 导入表情配置
 import emojisConfig from '@data/emojis.json'
+
+const { slug, title } = Astro.props
+const publicOwnerName = import.meta.env.PUBLIC_OWNER_NAME || ''
+const publicOwnerEmail = import.meta.env.PUBLIC_OWNER_EMAIL || ''
 ---
 
 <section
@@ -19,6 +21,8 @@ import emojisConfig from '@data/emojis.json'
   data-slug={slug}
   data-title={title}
   data-emojis={JSON.stringify(emojisConfig)}
+  data-owner-name={publicOwnerName}
+  data-owner-email={publicOwnerEmail}
 >
   <!-- 评论表单 -->
   <form
@@ -775,6 +779,8 @@ import emojisConfig from '@data/emojis.json'
 
     const slug = section.dataset.slug
     const title = section.dataset.title
+    const ownerName = section.dataset.ownerName || ''
+    const ownerEmail = section.dataset.ownerEmail || ''
     const emojisConfig: EmojisConfig = JSON.parse(
       section.dataset.emojis || '{}',
     )
@@ -1905,11 +1911,8 @@ import emojisConfig from '@data/emojis.json'
       const name = formData.get('name') as string
       const email = (formData.get('email') as string) || undefined
 
-      // 博主身份配置（请替换为你自己的信息）
-      const OWNER_NAME = 'Your Name'
-      const OWNER_EMAIL = 'hi@example.com'
-      const isOwnerName = name === OWNER_NAME
-      const isOwnerEmail = email === OWNER_EMAIL
+      const isOwnerName = ownerName !== '' && name === ownerName
+      const isOwnerEmail = ownerEmail !== '' && email === ownerEmail
 
       // 检查是否需要博主验证（名称或邮箱任一匹配都需要验证）
       let ownerToken: string | undefined = undefined

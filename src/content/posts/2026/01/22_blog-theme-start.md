@@ -171,7 +171,7 @@ tags:
 2. 在 `/thoughts/new` 页面的 **API Token** 输入框中填入这个密钥
 3. Token 会保存在浏览器本地，下次访问不用重复输入
 
-编辑器会调用 `/api/add-thought` 接口，将内容提交到 GitHub 仓库（通过 GitHub API 直接创建文件并提交）。因此这个功能同样需要 SSR 模式和 `GITHUB_TOKEN`、`GITHUB_OWNER` 等环境变量。
+编辑器会调用模板内置的 `/api/add-thought` 接口，将内容提交到 GitHub 仓库（通过 GitHub API 直接创建文件并提交）。推荐按仓库里的 `docs/deploy-vercel.md` 部署到 Vercel，并配置 `GITHUB_TOKEN`、`CONTENT_REPO`、`THOUGHT_API_TOKEN` 等环境变量。
 
 > [!TIP]
 > 如果你不需要在线发布功能，可以删除 `src/pages/thoughts/new.astro`，只用 `bun t` 命令在本地创建碎碎念。
@@ -210,63 +210,63 @@ tags:
 在项目根目录创建 `.env` 文件：
 
 ```bash title=".env"
-# GitHub 评论仓库配置
+# 站点地址
+SITE_URL=https://your-domain.com
+
+# GitHub API Token
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-GITHUB_OWNER=your-github-username
-GITHUB_REPO=my-blog-comments
+
+# 评论 / 留言板仓库
+COMMENTS_REPO=your-github-username/my-blog-comments
+
+# 点赞仓库（可选，不配会回退到 COMMENTS_REPO / GITHUB_REPO）
+LIKES_REPO=your-github-username/my-blog-likes
+
+# 在线发布碎碎念写入的内容仓库
+CONTENT_REPO=your-github-username/my-blog
 
 # 博主身份验证（用于评论中显示「博主」标识）
 OWNER_NAME=你的名字
 OWNER_EMAIL=you@example.com
 OWNER_TOKEN=your-secret-token
+PUBLIC_OWNER_NAME=你的名字
 
 # 碎碎念在线发布（可选，仅 /thoughts/new 页面需要）
 THOUGHT_API_TOKEN=your-thought-api-token
+CONTENT_BRANCH=main
+SITE_TIMEZONE=Asia/Shanghai
 ```
 
 各变量说明：
 
-| 变量           | 说明                                           |
-| -------------- | ---------------------------------------------- |
-| `GITHUB_TOKEN` | 上一步创建的 Fine-grained Token                |
-| `GITHUB_OWNER` | 评论仓库所属的 GitHub 用户名或组织名           |
-| `GITHUB_REPO`  | 评论仓库名称                                   |
-| `OWNER_NAME`   | 博主名称，评论中使用此名字时会触发身份验证     |
-| `OWNER_EMAIL`  | 博主邮箱，同上                                 |
-| `OWNER_TOKEN`  | 博主验证口令，在前端提交评论时用于证明博主身份 |
+| 变量                | 说明                                           |
+| ------------------- | ---------------------------------------------- |
+| `SITE_URL`          | 线上站点地址，用于生成链接和 CORS              |
+| `GITHUB_TOKEN`      | 上一步创建的 Fine-grained Token                |
+| `COMMENTS_REPO`     | 评论 / 留言板仓库，格式 `owner/repo`           |
+| `LIKES_REPO`        | 点赞数据仓库，可选                             |
+| `CONTENT_REPO`      | `/thoughts/new` 写入的内容仓库                 |
+| `OWNER_NAME`        | 博主名称，评论中使用此名字时会触发身份验证     |
+| `OWNER_EMAIL`       | 博主邮箱，同上                                 |
+| `OWNER_TOKEN`       | 博主验证口令，在前端提交评论时用于证明博主身份 |
+| `PUBLIC_OWNER_NAME` | 前端用于提示博主输入 token                     |
+| `THOUGHT_API_TOKEN` | 在线发布碎碎念所需口令                         |
 
 > [!WARNING]
 > `.env` 文件已在 `.gitignore` 中，不会被提交。如果部署到 Vercel/Netlify 等平台，需要在平台的环境变量设置中添加这些变量。
 
 ### 第四步：部署 API 端点
 
-评论系统需要两个 API 端点：
+模板仓库根目录已经带了这些 API：
 
-- `GET /api/comments?slug=xxx` — 获取指定文章的评论列表
-- `POST /api/submit-comment` — 提交新评论
+- `api/comments.ts`
+- `api/submit-comment.ts`
+- `api/likes.ts`
+- `api/add-thought.ts`
 
-这两个端点需要 **服务端渲染（SSR）** 支持。如果你使用纯静态部署（默认的 `output: 'static'`），需要切换到 SSR 模式或使用混合模式：
+最省事的方式是直接部署到 Vercel。因为 Vercel 可以同时托管静态站点和根目录下的 `api/` Serverless Functions，所以你不需要把 Astro 改成 SSR，也不需要自己再补一套后端。
 
-```mjs title="astro.config.mjs"
-import vercel from '@astrojs/vercel'
-
-export default defineConfig({
-  output: 'server', // 或 'hybrid'
-  adapter: vercel(),
-  // ...
-})
-```
-
-安装对应的 adapter：
-
-```bash
-bun add @astrojs/vercel
-# 或其他平台
-# bun add @astrojs/netlify
-# bun add @astrojs/cloudflare
-```
-
-然后在 `src/pages/api/` 目录下实现 `comments.ts` 和 `submit-comment.ts`，使用 GitHub REST API 读写 Issues。
+如果你不用 Vercel，或者不想用 GitHub Issues / 仓库来存这些数据，也可以参考仓库里的 `docs/api-contract.md` 自己实现兼容接口。
 
 > [!NOTE]
 > 如果你不需要评论功能，可以直接删除 `src/components/Comments.astro` 文件，并移除文章页面（`src/pages/[...slug].astro`）和留言板页面中对它的引用。
@@ -329,29 +329,22 @@ bun run build
 生成的文件可以部署到任何静态托管服务：Vercel、Netlify、Cloudflare Pages、GitHub Pages 等。
 
 > [!NOTE]
-> 纯静态模式下，评论系统不可用（因为没有服务端 API）。如果需要评论和留言板功能，请使用 SSR 或混合模式。
+> 纯静态模式下，评论、留言板、点赞和网页端发布不会生效。如果你需要这些功能，推荐直接按 `docs/deploy-vercel.md` 部署内置 API。
 
-### SSR / 混合模式部署
+### 使用 Vercel 部署内置 API
 
-如果需要评论功能，推荐使用 Vercel + SSR 部署：
+如果你需要评论功能、碎碎念点赞或 `/thoughts/new` 在线发布，推荐直接把整个项目部署到 Vercel。
 
-```bash
-bun add @astrojs/vercel
-```
+模板已经自带 `vercel.json` 和根目录 `api/`，你只需要在 Vercel Dashboard 中补齐环境变量，例如：
 
-```mjs title="astro.config.mjs"
-import vercel from '@astrojs/vercel'
+- `SITE_URL`
+- `GITHUB_TOKEN`
+- `COMMENTS_REPO` 或 `GITHUB_REPO`
+- `LIKES_REPO` 或 `COMMENTS_REPO`
+- `CONTENT_REPO`
+- `THOUGHT_API_TOKEN`
 
-export default defineConfig({
-  output: 'server',
-  adapter: vercel(),
-  // ...
-})
-```
-
-然后在 Vercel Dashboard 中添加环境变量（`GITHUB_TOKEN`、`GITHUB_OWNER`、`GITHUB_REPO` 等），部署即可。
-
-其他平台参考 [Astro 部署文档](https://docs.astro.build/en/guides/deploy/)。
+完整步骤见仓库里的 `docs/deploy-vercel.md`。
 
 ---
 
@@ -389,15 +382,19 @@ export default defineConfig({
 
 ## 环境变量汇总
 
-| 变量                | 必需        | 说明                          |
-| ------------------- | ----------- | ----------------------------- |
-| `GITHUB_TOKEN`      | 评论/碎碎念 | GitHub Fine-grained Token     |
-| `GITHUB_OWNER`      | 评论/碎碎念 | GitHub 用户名或组织名         |
-| `GITHUB_REPO`       | 评论        | 评论仓库名称                  |
-| `OWNER_NAME`        | 评论        | 博主名称（身份验证用）        |
-| `OWNER_EMAIL`       | 评论        | 博主邮箱（身份验证用）        |
-| `OWNER_TOKEN`       | 评论        | 博主验证口令                  |
-| `THOUGHT_API_TOKEN` | 碎碎念      | 在线发布碎碎念的 API 验证密钥 |
+| 变量                | 必需     | 说明                          |
+| ------------------- | -------- | ----------------------------- |
+| `SITE_URL`          | 动态功能 | 线上站点地址                  |
+| `GITHUB_TOKEN`      | 动态功能 | GitHub Fine-grained Token     |
+| `COMMENTS_REPO`     | 评论     | 评论 / 留言板仓库             |
+| `LIKES_REPO`        | 点赞     | 点赞数据仓库                  |
+| `CONTENT_REPO`      | 碎碎念   | 在线发布写入的内容仓库        |
+| `GITHUB_REPO`       | 可选回退 | 不拆仓库时可作为通用回退      |
+| `OWNER_NAME`        | 评论     | 博主名称（身份验证用）        |
+| `OWNER_EMAIL`       | 评论     | 博主邮箱（身份验证用）        |
+| `OWNER_TOKEN`       | 评论     | 博主验证口令                  |
+| `PUBLIC_OWNER_NAME` | 评论     | 前端提示博主输入 token        |
+| `THOUGHT_API_TOKEN` | 碎碎念   | 在线发布碎碎念的 API 验证密钥 |
 
 标注为「评论」的变量在使用评论/留言板功能时需要配置，标注为「碎碎念」的在使用在线发布功能（`/thoughts/new`）时需要配置。纯静态 + 本地写作的方式不需要任何环境变量。
 

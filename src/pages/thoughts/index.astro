@@ -1,28 +1,28 @@
 ---
-import { type CollectionEntry, getCollection, render } from "astro:content";
-import Container from "@components/Container.astro";
-import { THOUGHTS } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
-import { getWeekday, timeAgo } from "@lib/utils";
+import { type CollectionEntry, getCollection, render } from 'astro:content'
+import Container from '@components/Container.astro'
+import { THOUGHTS } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
+import { getWeekday, timeAgo } from '@lib/utils'
 
-const collection = (await getCollection("thoughts"))
-	.filter((thought: CollectionEntry<"thoughts">) => !thought.data.draft)
-	.sort(
-		(a: CollectionEntry<"thoughts">, b: CollectionEntry<"thoughts">) =>
-			new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
-	);
+const collection = (await getCollection('thoughts'))
+  .filter((thought: CollectionEntry<'thoughts'>) => !thought.data.draft)
+  .sort(
+    (a: CollectionEntry<'thoughts'>, b: CollectionEntry<'thoughts'>) =>
+      new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
+  )
 
 const thoughts = await Promise.all(
-	collection.map(async (item: CollectionEntry<"thoughts">, index: number) => {
-		const { Content } = await render(item);
-		const thoughtId = collection.length - index;
-		const dateStr = item.data.date.toISOString().split("T")[0];
-		const hours = String(item.data.date.getHours()).padStart(2, "0");
-		const minutes = String(item.data.date.getMinutes()).padStart(2, "0");
-		const timeStr = `${hours}:${minutes}`;
-		return { ...item, Content, thoughtId, dateStr, timeStr };
-	}),
-);
+  collection.map(async (item: CollectionEntry<'thoughts'>, index: number) => {
+    const { Content } = await render(item)
+    const thoughtId = collection.length - index
+    const dateStr = item.data.date.toISOString().split('T')[0]
+    const hours = String(item.data.date.getHours()).padStart(2, '0')
+    const minutes = String(item.data.date.getMinutes()).padStart(2, '0')
+    const timeStr = `${hours}:${minutes}`
+    return { ...item, Content, thoughtId, dateStr, timeStr }
+  }),
+)
 ---
 
 <PageLayout title={THOUGHTS.TITLE} description={THOUGHTS.DESCRIPTION}>
@@ -42,11 +42,10 @@ const thoughts = await Promise.all(
             return (
               <li
                 id={`${entry.thoughtId}`}
-                class="animate scroll-mt-20 border-stone-200 group dark:border-stone-800"
+                class="animate group scroll-mt-20 border-stone-200 dark:border-stone-800"
               >
                 <div class="flex flex-wrap items-center gap-1.5 py-1.5 text-xs font-medium sm:gap-2">
                   <div class="h-2 w-2 rounded-full bg-stone-400 shadow-sm dark:bg-stone-500" />
-                  {/* 编号 */}
                   <a
                     href={`#${entry.thoughtId}`}
                     class="thought-anchor cursor-pointer font-semibold text-stone-500 transition-opacity hover:opacity-70 dark:text-stone-400"
@@ -56,7 +55,6 @@ const thoughts = await Promise.all(
                     #{entry.thoughtId}
                   </a>
                   <span class="text-stone-300 dark:text-stone-600">·</span>
-                  {/* 相对时间 */}
                   <span class="text-stone-500 dark:text-stone-400">
                     <span
                       class="time-ago"
@@ -68,31 +66,74 @@ const thoughts = await Promise.all(
                   <span class="hidden text-stone-300 sm:inline dark:text-stone-600">
                     ·
                   </span>
-                  {/* 星期 - 桌面端显示 */}
                   <span class="hidden text-stone-500 sm:inline dark:text-stone-400">
                     {getWeekday(entry.data.date)}
                   </span>
                   <span class="text-stone-300 dark:text-stone-600">·</span>
-                  {/* 具体日期 + 时间 */}
                   <span class="font-mono text-stone-500 dark:text-stone-400">
                     {entry.dateStr}
                     <span class="ml-1 text-stone-400 dark:text-stone-500">
                       {entry.timeStr}
                     </span>
                   </span>
-                  {/* 标签 */}
-                  {entry.data.tags && entry.data.tags.length > 0 && (
-                    <>
-                      <span class="hidden text-stone-300 sm:inline dark:text-stone-600">
-                        ·
+                  <span class="ml-auto flex items-center gap-1.5 sm:gap-2">
+                    {entry.data.tags && entry.data.tags.length > 0 && (
+                      <span class="hidden items-center gap-1.5 sm:flex sm:gap-2">
+                        <span class="text-stone-300 dark:text-stone-600">
+                          ·
+                        </span>
+                        <span class="text-stone-400 dark:text-stone-500">
+                          {entry.data.tags
+                            .map((tag: string) => `#${tag}`)
+                            .join(' ')}
+                        </span>
                       </span>
-                      <span class="hidden text-stone-400 sm:inline dark:text-stone-500">
-                        {entry.data.tags
-                          .map((tag: string) => `#${tag}`)
-                          .join(' ')}
-                      </span>
-                    </>
-                  )}
+                    )}
+                    <span class="thought-like-wrap relative">
+                      <button
+                        type="button"
+                        class="thought-like-btn group/like flex items-center gap-1 rounded-full px-1.5 py-0.5 text-stone-400 transition-all duration-200 hover:text-rose-500 sm:px-2 sm:py-1 dark:text-stone-600 dark:hover:text-rose-400"
+                        data-thought-id={entry.thoughtId}
+                        data-liked="false"
+                        aria-label={`为第 ${entry.thoughtId} 条碎碎念点赞`}
+                      >
+                        <span
+                          class="thought-heart-empty"
+                          style="display:inline-flex;align-items:center;justify-content:center;"
+                        >
+                          <svg
+                            class="h-3.5 w-3.5 transition-colors duration-200 group-hover/like:text-rose-500"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                          </svg>
+                        </span>
+                        <span
+                          class="thought-heart-filled"
+                          style="display:none;align-items:center;justify-content:center;"
+                        >
+                          <svg
+                            class="h-3.5 w-3.5 text-rose-500 dark:text-rose-400"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            stroke="none"
+                          >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                          </svg>
+                        </span>
+                        <span class="thought-like-count text-[11px] leading-none tabular-nums" />
+                      </button>
+                      <span
+                        class="thought-bubble pointer-events-none absolute right-0 bottom-full mb-1.5 rounded-md px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap opacity-0"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </span>
                 </div>
                 <div class="mb-4 ml-0.5 border-b border-stone-200 py-3 sm:mb-0 sm:border-b-0 sm:border-l-2 sm:border-stone-300 sm:pl-6 dark:border-stone-800 sm:dark:border-stone-700">
                   <article class="prose-p:my-4! text-sm! font-medium [&_img]:my-2 [&_img]:mr-auto [&_img]:ml-0! [&_img]:h-auto [&_img]:w-auto [&_img]:max-w-60 [&_img]:object-contain sm:[&_img]:max-w-xs">
@@ -107,7 +148,6 @@ const thoughts = await Promise.all(
     </div>
   </Container>
 
-  <!-- Toast 通知 -->
   <div
     id="copy-toast"
     class="pointer-events-none fixed bottom-8 left-1/2 z-50 -translate-x-1/2 transform opacity-0 transition-all duration-300"
@@ -115,24 +155,98 @@ const thoughts = await Promise.all(
     <div
       class="rounded-lg bg-stone-800/90 px-4 py-2 text-sm text-white shadow-lg dark:bg-stone-200 dark:text-stone-800"
     >
-      ✓ 链接已复制
+      <span id="toast-message">✓ 链接已复制</span>
     </div>
   </div>
 </PageLayout>
 
 <script>
   import { setupTimeAgo } from '@lib/timeago-client'
+  import { formatLikeCount, getLikes, sendLike } from '@lib/likes-client'
 
-  function showToast() {
+  let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+  function showToast(message: string) {
     const toast = document.getElementById('copy-toast')
-    if (toast) {
+    const msgEl = document.getElementById('toast-message')
+    if (toast && msgEl) {
+      msgEl.textContent = message
+      if (toastTimer) clearTimeout(toastTimer)
       toast.classList.remove('opacity-0')
       toast.classList.add('opacity-100')
-      setTimeout(() => {
+      toastTimer = setTimeout(() => {
         toast.classList.remove('opacity-100')
         toast.classList.add('opacity-0')
       }, 2000)
     }
+  }
+
+  const bubbleTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+  type BubbleVariant = 'liked' | 'thanks' | 'error'
+
+  const BUBBLE_STYLES: Record<BubbleVariant, { bg: string; text: string }> = {
+    liked: {
+      bg: 'bg-stone-100 dark:bg-stone-800',
+      text: 'text-stone-500 dark:text-stone-400',
+    },
+    thanks: {
+      bg: 'bg-rose-50 dark:bg-rose-950/60',
+      text: 'text-rose-500 dark:text-rose-400',
+    },
+    error: {
+      bg: 'bg-stone-100 dark:bg-stone-800',
+      text: 'text-stone-400 dark:text-stone-500',
+    },
+  }
+
+  function showBubble(
+    btn: HTMLElement,
+    message: string,
+    variant: BubbleVariant,
+    duration = 1500,
+  ) {
+    const wrap = btn.closest('.thought-like-wrap')
+    if (!wrap) return
+    const bubble = wrap.querySelector('.thought-bubble') as HTMLElement | null
+    if (!bubble) return
+
+    const id = btn.dataset.thoughtId || ''
+    const oldTimer = bubbleTimers.get(id)
+    if (oldTimer) {
+      clearTimeout(oldTimer)
+      bubbleTimers.delete(id)
+    }
+
+    bubble.className = [
+      'thought-bubble pointer-events-none absolute right-0 bottom-full mb-1.5',
+      'whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium leading-none',
+      BUBBLE_STYLES[variant].bg,
+      BUBBLE_STYLES[variant].text,
+      'bubble-enter',
+    ].join(' ')
+    bubble.textContent = message
+
+    requestAnimationFrame(() => {
+      bubble.classList.add('bubble-visible')
+    })
+
+    const timer = setTimeout(() => {
+      bubble.classList.remove('bubble-visible')
+      bubble.classList.add('bubble-leave')
+      bubble.addEventListener(
+        'transitionend',
+        () => {
+          bubble.className =
+            'thought-bubble pointer-events-none absolute right-0 bottom-full mb-1.5 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium leading-none opacity-0'
+          bubble.textContent = ''
+        },
+        { once: true },
+      )
+      bubbleTimers.delete(id)
+    }, duration)
+
+    bubbleTimers.set(id, timer)
   }
 
   function setupAnchorLinks() {
@@ -144,15 +258,13 @@ const thoughts = await Promise.all(
 
         try {
           await navigator.clipboard.writeText(url)
-          showToast()
-        } catch (err) {
-          // 错误则不复制
+          showToast('✓ 链接已复制')
+        } catch {
+          // ignore copy failure
         }
 
-        // 更新 URL hash
         history.pushState(null, '', `#${thoughtId}`)
 
-        // 滚动到对应位置
         const element = document.getElementById(`${thoughtId}`)
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -174,23 +286,170 @@ const thoughts = await Promise.all(
     }
   }
 
+  function updateLikeButton(
+    btn: HTMLElement,
+    total: number,
+    userToday: number,
+  ) {
+    const countEl = btn.querySelector('.thought-like-count') as HTMLElement
+    const emptyHeart = btn.querySelector('.thought-heart-empty') as HTMLElement
+    const filledHeart = btn.querySelector(
+      '.thought-heart-filled',
+    ) as HTMLElement
+
+    if (!countEl || !emptyHeart || !filledHeart) return
+
+    countEl.textContent = formatLikeCount(total)
+
+    if (userToday > 0) {
+      btn.dataset.liked = 'true'
+      emptyHeart.style.display = 'none'
+      filledHeart.style.display = 'inline-flex'
+      btn.classList.add('text-rose-500', 'dark:text-rose-400')
+      btn.classList.remove(
+        'text-stone-400',
+        'dark:text-stone-600',
+        'hover:text-rose-500',
+        'dark:hover:text-rose-400',
+      )
+    } else {
+      btn.dataset.liked = 'false'
+      emptyHeart.style.display = 'inline-flex'
+      filledHeart.style.display = 'none'
+      btn.classList.remove('text-rose-500', 'dark:text-rose-400')
+      btn.classList.add(
+        'text-stone-400',
+        'dark:text-stone-600',
+        'hover:text-rose-500',
+        'dark:hover:text-rose-400',
+      )
+    }
+  }
+
+  function animateHeart(btn: HTMLElement) {
+    const filledHeart = btn.querySelector(
+      '.thought-heart-filled',
+    ) as HTMLElement
+    if (!filledHeart) return
+
+    const svg = filledHeart.querySelector('svg')
+    if (!svg) return
+
+    svg.style.animation = 'none'
+    svg.getBoundingClientRect()
+    svg.style.animation =
+      'thought-heart-pop 0.45s cubic-bezier(0.17,0.89,0.32,1.49)'
+    svg.addEventListener(
+      'animationend',
+      () => {
+        svg.style.animation = ''
+      },
+      { once: true },
+    )
+  }
+
+  async function loadThoughtLikes() {
+    const buttons = document.querySelectorAll(
+      '.thought-like-btn',
+    ) as NodeListOf<HTMLElement>
+    if (buttons.length === 0) return
+
+    const ids: string[] = []
+    buttons.forEach((btn) => {
+      const id = btn.dataset.thoughtId
+      if (id) ids.push(id)
+    })
+
+    try {
+      const result = await getLikes(ids, 'thought')
+
+      buttons.forEach((btn) => {
+        const id = btn.dataset.thoughtId
+        if (!id) return
+        const key = `thought:${id}`
+        const info = result[key]
+        if (info) {
+          updateLikeButton(btn, info.total, info.userToday)
+        }
+      })
+    } catch {
+      // ignore
+    }
+  }
+
+  let likeInProgress = new Set<string>()
+
+  function setupLikeButtons() {
+    document.querySelectorAll('.thought-like-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const button = btn as HTMLElement
+        const thoughtId = button.dataset.thoughtId
+        if (!thoughtId) return
+        if (likeInProgress.has(thoughtId)) return
+        likeInProgress.add(thoughtId)
+
+        if (button.dataset.liked === 'true') {
+          showBubble(button, '今日已点赞 ❤️', 'liked', 1400)
+          likeInProgress.delete(thoughtId)
+          return
+        }
+
+        const countEl = button.querySelector(
+          '.thought-like-count',
+        ) as HTMLElement
+        const currentCount = parseInt(countEl?.textContent || '0') || 0
+        updateLikeButton(button, currentCount + 1, 1)
+        animateHeart(button)
+        showBubble(button, '点赞成功 ❤️', 'thanks', 1600)
+
+        try {
+          const result = await sendLike(thoughtId, 'thought')
+
+          if (result.limited) {
+            updateLikeButton(button, result.total, result.userToday)
+            if (result.limitReason === 'daily_cap') {
+              showBubble(button, '今日点赞已达上限', 'liked', 1600)
+            } else {
+              showBubble(button, '今日已点赞 ❤️', 'liked', 1400)
+            }
+          } else if (result.success) {
+            updateLikeButton(button, result.total, result.userToday)
+          }
+        } catch (error) {
+          updateLikeButton(button, currentCount, 0)
+          showBubble(
+            button,
+            error instanceof Error ? error.message : '出错了，稍后再试',
+            'error',
+            1800,
+          )
+        } finally {
+          likeInProgress.delete(thoughtId)
+        }
+      })
+    })
+  }
+
   function init() {
     setupTimeAgo()
     setupAnchorLinks()
     highlightAnchor()
+    setupLikeButtons()
+    loadThoughtLikes()
   }
 
   document.addEventListener('DOMContentLoaded', init)
   document.addEventListener('astro:after-swap', init)
 
-  // 立即执行
   if (document.readyState === 'complete') {
     init()
   }
 </script>
 
 <style>
-  /* 高亮动画 */
   .highlight-thought {
     animation: highlightPulse 2s ease-out;
   }
@@ -215,5 +474,47 @@ const thoughts = await Promise.all(
     100% {
       background-color: transparent;
     }
+  }
+
+  @keyframes thought-heart-pop {
+    0% {
+      transform: scale(1);
+    }
+    20% {
+      transform: scale(1.4);
+    }
+    45% {
+      transform: scale(0.85);
+    }
+    70% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .thought-bubble {
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .thought-bubble.bubble-enter {
+    opacity: 0;
+    transform: translateY(4px) scale(0.95);
+  }
+
+  .thought-bubble.bubble-enter.bubble-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .thought-bubble.bubble-leave {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
   }
 </style>
