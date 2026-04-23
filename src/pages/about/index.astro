@@ -1,8 +1,8 @@
 ---
-import Container from "@components/Container.astro";
-import Link from "@components/Link.astro";
-import { ABOUT, PROJECTS, SITE, SOCIALS, TECH_STACK } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
+import Container from '@components/Container.astro'
+import Link from '@components/Link.astro'
+import { ABOUT, PROJECTS, SITE, SOCIALS, TECH_STACK } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
 ---
 
 <PageLayout title={ABOUT.TITLE} description={ABOUT.DESCRIPTION}>
@@ -29,6 +29,7 @@ import PageLayout from "@layouts/PageLayout.astro";
         <div
           class="space-y-4 text-sm text-stone-700 sm:text-base dark:text-stone-300"
         >
+          <p>这里是你的个人介绍。可以写写你是谁、在做什么、对什么感兴趣。</p>
           <p>
             我只是一名普通的大学生，学的还是土木工程。暂时没有什么能力算是出众，也没有可以拿来介绍自己的资质。emmm……期待自己会慢慢变得厉害吧
           </p>
@@ -77,7 +78,7 @@ import PageLayout from "@layouts/PageLayout.astro";
           {
             PROJECTS.map((group) => (
               <div class="space-y-2">
-                <h3 class="text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                <h3 class="text-xs font-medium tracking-wider text-stone-500 uppercase dark:text-stone-400">
                   {group.category}
                 </h3>
                 <ul class="space-y-2">
@@ -141,7 +142,7 @@ import PageLayout from "@layouts/PageLayout.astro";
           {
             TECH_STACK.map((group) => (
               <div class="space-y-2">
-                <h3 class="text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                <h3 class="text-xs font-medium tracking-wider text-stone-500 uppercase dark:text-stone-400">
                   {group.category}
                 </h3>
                 <ul class="space-y-2">
@@ -155,7 +156,8 @@ import PageLayout from "@layouts/PageLayout.astro";
                         {tech.name}
                       </Link>
                       <span class="text-stone-400 dark:text-stone-500">
-                        {" "}— {tech.description}
+                        {' '}
+                        — {tech.description}
                       </span>
                     </li>
                   ))}

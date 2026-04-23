@@ -1,9 +1,9 @@
 ---
-export const prerender = true;
+export const prerender = true
 
-import Container from "@components/Container.astro";
-import { THOUGHTS } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
+import Container from '@components/Container.astro'
+import { THOUGHTS } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
 ---
 
 <PageLayout title={`发布 ${THOUGHTS.TITLE}`} description="发布新的碎碎念">
@@ -18,6 +18,14 @@ import PageLayout from "@layouts/PageLayout.astro";
         <p class="text-stone-600 dark:text-stone-400">
           记录此刻的想法，支持 Markdown 格式
         </p>
+      </div>
+
+      <div
+        class="animate rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-900/50 dark:text-stone-300"
+      >
+        这是一个可选增强页。模板已经自带 <code>/api/add-thought</code>，推荐按
+        <code>docs/deploy-vercel.md</code> 部署到 Vercel 并配置 Token；如果你只想纯静态写作，继续使用本地命令
+        <code>bun t</code> 即可。
       </div>
 
       <!-- 认证区域 -->
@@ -445,11 +453,24 @@ import PageLayout from "@layouts/PageLayout.astro";
           }),
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => null)
+
+        if (!response.ok) {
+          let message = data?.message || data?.error || '未知错误'
+
+          if (response.status === 404 || response.status === 405) {
+            message =
+              '在线发布接口未启用，请先按 docs/deploy-vercel.md 部署内置 API'
+          } else if (response.status === 401) {
+            message = 'API Token 无效，请检查 THOUGHT_API_TOKEN 配置'
+          }
+
+          throw new Error(message)
+        }
 
         resultSection.classList.remove('hidden')
 
-        if (data.success) {
+        if (data?.success) {
           resultSuccess.classList.remove('hidden')
           resultError.classList.add('hidden')
           resultMessage.textContent = `碎碎念已成功创建！文件: ${data.data.filename}`
@@ -477,7 +498,7 @@ import PageLayout from "@layouts/PageLayout.astro";
         } else {
           resultSuccess.classList.add('hidden')
           resultError.classList.remove('hidden')
-          errorMessage.textContent = data.message || '未知错误'
+          errorMessage.textContent = data?.message || '未知错误'
         }
       } catch (error) {
         resultSection.classList.remove('hidden')

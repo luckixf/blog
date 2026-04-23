@@ -1,17 +1,19 @@
 ---
 // 自定义评论组件
-// 使用 GitHub Issues 存储，支持 Gravatar 头像、表情、Markdown 和剧透语法
+// 使用 GitHub Issues 存储，支持头像、表情、Markdown 和剧透语法
 // 现代化卡片式设计
 
 interface Props {
-	slug: string;
-	title: string;
+  slug: string
+  title: string
 }
 
-const { slug, title } = Astro.props;
-
 // 导入表情配置
-import emojisConfig from "@data/emojis.json";
+import emojisConfig from '@data/emojis.json'
+
+const { slug, title } = Astro.props
+const publicOwnerName = import.meta.env.PUBLIC_OWNER_NAME || ''
+const publicOwnerEmail = import.meta.env.PUBLIC_OWNER_EMAIL || ''
 ---
 
 <section
@@ -19,14 +21,31 @@ import emojisConfig from "@data/emojis.json";
   data-slug={slug}
   data-title={title}
   data-emojis={JSON.stringify(emojisConfig)}
+  data-owner-name={publicOwnerName}
+  data-owner-email={publicOwnerEmail}
 >
   <!-- 评论表单 -->
-  <form id="comment-form" class="rounded-lg border border-stone-200 p-4 dark:border-stone-700">
-    <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
+  <form
+    id="comment-form"
+    class="rounded-lg border border-stone-200 p-4 dark:border-stone-700"
+  >
+    <input
+      type="text"
+      name="_gotcha"
+      class="hidden"
+      tabindex="-1"
+      autocomplete="off"
+    />
     <!-- 用户信息区域 - 三列布局 -->
-    <div class="no-focus mb-2 grid grid-cols-1 gap-1 border-b border-stone-200 pb-2 sm:grid-cols-3 sm:gap-2 dark:border-stone-700">
+    <div
+      class="no-focus mb-2 grid grid-cols-1 gap-1 border-b border-stone-200 pb-2 sm:grid-cols-3 sm:gap-2 dark:border-stone-700"
+    >
       <div class="flex items-center gap-2">
-        <label for="comment-name" class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400">名称:</label>
+        <label
+          for="comment-name"
+          class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400"
+          >名称:</label
+        >
         <input
           id="comment-name"
           name="name"
@@ -38,7 +57,11 @@ import emojisConfig from "@data/emojis.json";
         />
       </div>
       <div class="relative flex items-center gap-2">
-        <label for="comment-email" class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400">邮箱:</label>
+        <label
+          for="comment-email"
+          class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400"
+          >邮箱:</label
+        >
         <input
           id="comment-email"
           name="email"
@@ -46,7 +69,9 @@ import emojisConfig from "@data/emojis.json";
           placeholder="可选，用于头像和通知"
           class="flex-1 border-0 bg-transparent pr-8 text-[16px] text-stone-900 outline-none placeholder:text-stone-400 sm:text-sm dark:text-stone-100 dark:placeholder:text-stone-500"
         />
-        <div class="pointer-events-none absolute top-1/2 right-0 -translate-y-1/2">
+        <div
+          class="pointer-events-none absolute top-1/2 right-0 -translate-y-1/2"
+        >
           <img
             id="avatar-preview"
             alt="头像预览"
@@ -59,7 +84,11 @@ import emojisConfig from "@data/emojis.json";
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <label for="comment-website" class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400">网站:</label>
+        <label
+          for="comment-website"
+          class="shrink-0 text-[16px] text-stone-500 sm:text-sm dark:text-stone-400"
+          >网站:</label
+        >
         <input
           id="comment-website"
           name="website"
@@ -93,7 +122,15 @@ import emojisConfig from "@data/emojis.json";
             aria-label="选择表情"
             class="inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
           >
-            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              class="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
               <line x1="9" y1="9" x2="9.01" y2="9"></line>
@@ -102,18 +139,32 @@ import emojisConfig from "@data/emojis.json";
             表情
           </button>
           <!-- 表情选择器 -->
-          <div id="emoji-picker" class="emoji-picker absolute bottom-full left-0 z-20 mb-2 hidden w-80 rounded-lg border border-stone-200 bg-white p-1 shadow-xl sm:w-96 dark:border-stone-700 dark:bg-stone-800">
+          <div
+            id="emoji-picker"
+            class="emoji-picker absolute bottom-full left-0 z-20 mb-2 hidden w-80 rounded-lg border border-stone-200 bg-white p-1 shadow-xl sm:w-96 dark:border-stone-700 dark:bg-stone-800"
+          >
             <div id="emoji-content" class="max-h-60 overflow-y-auto p-1"></div>
-            <div class="mt-1 border-t border-stone-100 pt-1 dark:border-stone-700/50">
-              <div id="emoji-tabs" class="flex flex-nowrap gap-1 overflow-x-auto px-1 pb-1"></div>
+            <div
+              class="mt-1 border-t border-stone-100 pt-1 dark:border-stone-700/50"
+            >
+              <div
+                id="emoji-tabs"
+                class="flex flex-nowrap gap-1 overflow-x-auto px-1 pb-1"
+              >
+              </div>
             </div>
           </div>
         </div>
-        <span class="hidden text-xs sm:inline">支持 Markdown、预设表情、剧透语法，如 || 剧透内容 ||</span>
+        <span class="hidden text-xs sm:inline"
+          >支持 Markdown、预设表情、剧透语法，如 || 剧透内容 ||</span
+        >
       </div>
 
       <div class="flex items-center gap-2">
-        <span id="char-count-wrapper" class="hidden text-xs text-stone-400 sm:inline dark:text-stone-500">
+        <span
+          id="char-count-wrapper"
+          class="hidden text-xs text-stone-400 sm:inline dark:text-stone-500"
+        >
           <span id="char-count">0</span> / 1200
         </span>
         <button
@@ -122,55 +173,116 @@ import emojisConfig from "@data/emojis.json";
           class="inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
         >
           <span id="submit-text">提交留言</span>
-          <svg id="submit-icon" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            id="submit-icon"
+            class="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
-          <svg id="submit-spinner" class="hidden h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <svg
+            id="submit-spinner"
+            class="hidden h-3.5 w-3.5 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
         </button>
       </div>
     </div>
-
   </form>
 
   <!-- 评论列表 -->
   <div id="comments-container" class="mt-12 sm:mt-16">
-    <h2 id="comments-count" class="mb-6 hidden font-medium text-stone-900 sm:text-lg dark:text-stone-100">
+    <h2
+      id="comments-count"
+      class="mb-6 hidden font-medium text-stone-900 sm:text-lg dark:text-stone-100"
+    >
       大家在聊 (<span id="count-number">0</span>)
     </h2>
 
     <div id="comments-loading" class="py-12 text-center">
-      <p class="text-sm text-stone-500 animate-pulse dark:text-stone-400">加载评论中...</p>
+      <p class="animate-pulse text-sm text-stone-500 dark:text-stone-400">
+        加载评论中...
+      </p>
     </div>
 
     <div id="comments-list" class="hidden space-y-4"></div>
 
     <div id="comments-empty" class="hidden">
-      <div class="flex flex-col items-center justify-center rounded-lg mt-24">
+      <div class="mt-24 flex flex-col items-center justify-center rounded-lg">
         <div class="mb-4 rounded-full bg-stone-50 p-4 dark:bg-stone-800/50">
-          <svg class="h-8 w-8 text-stone-300 dark:text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+          <svg
+            class="h-8 w-8 text-stone-300 dark:text-stone-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+            ></path>
           </svg>
         </div>
-        <p class="text-sm font-medium text-stone-600 dark:text-stone-400">还没有人留言</p>
-        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">快来抢占沙发</p>
+        <p class="text-sm font-medium text-stone-600 dark:text-stone-400">
+          还没有人留言
+        </p>
+        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
+          快来抢占沙发
+        </p>
       </div>
     </div>
 
     <div id="comments-error" class="hidden">
-      <div class="flex items-center gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50">
-        <svg class="h-5 w-5 shrink-0 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div
+        class="flex items-center gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50"
+      >
+        <svg
+          class="h-5 w-5 shrink-0 text-stone-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <span class="flex-1 text-sm text-stone-600 dark:text-stone-400">加载评论时出错了</span>
-        <button id="retry-load" class="rounded-lg border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700">重试</button>
+        <span
+          id="comments-error-message"
+          class="flex-1 text-sm text-stone-600 dark:text-stone-400"
+          >加载评论时出错了</span
+        >
+        <button
+          id="retry-load"
+          class="rounded-lg border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+          >重试</button
+        >
       </div>
     </div>
   </div>
-
 </section>
 
 <script>
@@ -251,32 +363,39 @@ import emojisConfig from "@data/emojis.json";
   }
 
   function removePendingComment(id: number): void {
-    const comments = getPendingComments().filter(c => c.id !== id)
+    const comments = getPendingComments().filter((c) => c.id !== id)
     savePendingComments(comments)
   }
 
   function cleanExpiredPendingComments(): void {
     const now = Date.now()
-    const comments = getPendingComments().filter(c => now - c.submittedAt < PENDING_TIMEOUT)
+    const comments = getPendingComments().filter(
+      (c) => now - c.submittedAt < PENDING_TIMEOUT,
+    )
     savePendingComments(comments)
   }
 
   // 检查远程评论是否匹配本地待确认评论
-  function matchPendingComment(remote: Comment, pending: PendingComment): boolean {
+  function matchPendingComment(
+    remote: Comment,
+    pending: PendingComment,
+  ): boolean {
     // 通过名称和内容匹配（内容前50字符）
-    const contentMatch = remote.content.slice(0, 50) === pending.content.slice(0, 50)
+    const contentMatch =
+      remote.content.slice(0, 50) === pending.content.slice(0, 50)
     const nameMatch = remote.name === pending.name
     // 时间差在 10 分钟内
-    const timeDiff = Math.abs(new Date(remote.createdAt).getTime() - new Date(pending.createdAt).getTime())
+    const timeDiff = Math.abs(
+      new Date(remote.createdAt).getTime() -
+        new Date(pending.createdAt).getTime(),
+    )
     const timeMatch = timeDiff < 10 * 60 * 1000
     return nameMatch && contentMatch && timeMatch
   }
 
   // 将待确认评论转换为 Comment 对象
   function pendingToComment(pending: PendingComment): Comment {
-    const md5Hash = pending.email
-      ? md5(pending.email.toLowerCase().trim())
-      : ''
+    const md5Hash = pending.email ? md5(pending.email.toLowerCase().trim()) : ''
     return {
       id: pending.id,
       name: pending.name,
@@ -287,21 +406,28 @@ import emojisConfig from "@data/emojis.json";
       content: pending.content,
       createdAt: pending.createdAt,
       userAgent: pending.userAgent,
-      replyTo: pending.replyToId ? {
-        id: pending.replyToId,
-        name: pending.replyToName || ''
-      } : undefined,
+      replyTo: pending.replyToId
+        ? {
+            id: pending.replyToId,
+            name: pending.replyToName || '',
+          }
+        : undefined,
       isOwner: pending.isOwner,
-      isPending: true
+      isPending: true,
     }
   }
 
   // 合并远程评论和本地待确认评论
-  function mergeWithPendingComments(remoteComments: Comment[], currentSlug: string): Comment[] {
+  function mergeWithPendingComments(
+    remoteComments: Comment[],
+    currentSlug: string,
+  ): Comment[] {
     // 清理过期的待确认评论
     cleanExpiredPendingComments()
 
-    const pendingComments = getPendingComments().filter(p => p.slug === currentSlug)
+    const pendingComments = getPendingComments().filter(
+      (p) => p.slug === currentSlug,
+    )
     if (pendingComments.length === 0) return remoteComments
 
     // 检查哪些待确认评论已经在远程存在
@@ -348,8 +474,10 @@ import emojisConfig from "@data/emojis.json";
             if (!comment.replies) comment.replies = []
             comment.replies.push(pendingComment)
             // 按时间排序
-            comment.replies.sort((a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            comment.replies.sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime(),
             )
             break
           }
@@ -365,19 +493,22 @@ import emojisConfig from "@data/emojis.json";
 
   // 解析表情语法 :packname_emojiname: 为图片
   function parseEmojis(text: string, emojisConfig: EmojisConfig): string {
-    return text.replace(/:([a-zA-Z0-9_]+)_([a-zA-Z0-9\u4e00-\u9fa5]+):/g, (match, packName, emojiName) => {
-      const pack = emojisConfig[packName]
-      if (pack && pack.items[emojiName]) {
-        const url = pack.items[emojiName]
-        const size = pack.size || 24
-        if (pack.type === 'image') {
-          return `<img class="emoji" src="${url}" alt="${emojiName}" title="${emojiName}" width="${size}" height="${size}" loading="lazy" referrerpolicy="no-referrer" />`
-        } else {
-          return pack.items[emojiName]
+    return text.replace(
+      /:([a-zA-Z0-9_]+)_([a-zA-Z0-9\u4e00-\u9fa5]+):/g,
+      (match, packName, emojiName) => {
+        const pack = emojisConfig[packName]
+        if (pack && pack.items[emojiName]) {
+          const url = pack.items[emojiName]
+          const size = pack.size || 24
+          if (pack.type === 'image') {
+            return `<img class="emoji" src="${url}" alt="${emojiName}" title="${emojiName}" width="${size}" height="${size}" loading="lazy" referrerpolicy="no-referrer" />`
+          } else {
+            return pack.items[emojiName]
+          }
         }
-      }
-      return match
-    })
+        return match
+      },
+    )
   }
 
   // 简单的 Markdown 解析器（包含剧透语法）
@@ -388,11 +519,20 @@ import emojisConfig from "@data/emojis.json";
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       // 剧透语法 || text ||
-      .replace(/\|\|([^|]+)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')" title="点击查看剧透">$1</span>')
+      .replace(
+        /\|\|([^|]+)\|\|/g,
+        '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')" title="点击查看剧透">$1</span>',
+      )
       // 图片 ![alt](url)
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="emoji" loading="lazy" />')
+      .replace(
+        /!\[([^\]]*)\]\(([^)]+)\)/g,
+        '<img src="$2" alt="$1" class="emoji" loading="lazy" />',
+      )
       // 链接 [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="comment-link">$1</a>')
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="comment-link">$1</a>',
+      )
       // 粗体 **text**
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       // 斜体 *text*
@@ -408,7 +548,7 @@ import emojisConfig from "@data/emojis.json";
     return html
   }
 
-  // MD5 实现（简化版，用于 Gravatar）
+  // MD5 实现（用于头像服务）
   function md5(string: string): string {
     function rotateLeft(value: number, shift: number): number {
       return (value << shift) | (value >>> (32 - shift))
@@ -419,37 +559,77 @@ import emojisConfig from "@data/emojis.json";
       const y4 = y & 0x80000000
       const x8 = x & 0x40000000
       const y8 = y & 0x40000000
-      const result = (x & 0x3FFFFFFF) + (y & 0x3FFFFFFF)
+      const result = (x & 0x3fffffff) + (y & 0x3fffffff)
       if (x8 & y8) return result ^ 0x80000000 ^ x4 ^ y4
       if (x8 | y8) {
-        if (result & 0x40000000) return result ^ 0xC0000000 ^ x4 ^ y4
+        if (result & 0x40000000) return result ^ 0xc0000000 ^ x4 ^ y4
         else return result ^ 0x40000000 ^ x4 ^ y4
       } else {
         return result ^ x4 ^ y4
       }
     }
 
-    function f(x: number, y: number, z: number): number { return (x & y) | ((~x) & z) }
-    function g(x: number, y: number, z: number): number { return (x & z) | (y & (~z)) }
-    function h(x: number, y: number, z: number): number { return x ^ y ^ z }
-    function i(x: number, y: number, z: number): number { return y ^ (x | (~z)) }
+    function f(x: number, y: number, z: number): number {
+      return (x & y) | (~x & z)
+    }
+    function g(x: number, y: number, z: number): number {
+      return (x & z) | (y & ~z)
+    }
+    function h(x: number, y: number, z: number): number {
+      return x ^ y ^ z
+    }
+    function i(x: number, y: number, z: number): number {
+      return y ^ (x | ~z)
+    }
 
-    function ff(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
+    function ff(
+      a: number,
+      b: number,
+      c: number,
+      d: number,
+      x: number,
+      s: number,
+      ac: number,
+    ): number {
       a = addUnsigned(a, addUnsigned(addUnsigned(f(b, c, d), x), ac))
       return addUnsigned(rotateLeft(a, s), b)
     }
 
-    function gg(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
+    function gg(
+      a: number,
+      b: number,
+      c: number,
+      d: number,
+      x: number,
+      s: number,
+      ac: number,
+    ): number {
       a = addUnsigned(a, addUnsigned(addUnsigned(g(b, c, d), x), ac))
       return addUnsigned(rotateLeft(a, s), b)
     }
 
-    function hh(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
+    function hh(
+      a: number,
+      b: number,
+      c: number,
+      d: number,
+      x: number,
+      s: number,
+      ac: number,
+    ): number {
       a = addUnsigned(a, addUnsigned(addUnsigned(h(b, c, d), x), ac))
       return addUnsigned(rotateLeft(a, s), b)
     }
 
-    function ii(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
+    function ii(
+      a: number,
+      b: number,
+      c: number,
+      d: number,
+      x: number,
+      s: number,
+      ac: number,
+    ): number {
       a = addUnsigned(a, addUnsigned(addUnsigned(i(b, c, d), x), ac))
       return addUnsigned(rotateLeft(a, s), b)
     }
@@ -466,7 +646,8 @@ import emojisConfig from "@data/emojis.json";
       while (byteCount < messageLength) {
         wordCount = (byteCount - (byteCount % 4)) / 4
         bytePosition = (byteCount % 4) * 8
-        wordArray[wordCount] = wordArray[wordCount] | (str.charCodeAt(byteCount) << bytePosition)
+        wordArray[wordCount] =
+          wordArray[wordCount] | (str.charCodeAt(byteCount) << bytePosition)
         byteCount++
       }
       wordCount = (byteCount - (byteCount % 4)) / 4
@@ -487,86 +668,109 @@ import emojisConfig from "@data/emojis.json";
     }
 
     const x = convertToWordArray(string)
-    let a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476
+    let a = 0x67452301,
+      b = 0xefcdab89,
+      c = 0x98badcfe,
+      d = 0x10325476
 
-    const S11 = 7, S12 = 12, S13 = 17, S14 = 22
-    const S21 = 5, S22 = 9, S23 = 14, S24 = 20
-    const S31 = 4, S32 = 11, S33 = 16, S34 = 23
-    const S41 = 6, S42 = 10, S43 = 15, S44 = 21
+    const S11 = 7,
+      S12 = 12,
+      S13 = 17,
+      S14 = 22
+    const S21 = 5,
+      S22 = 9,
+      S23 = 14,
+      S24 = 20
+    const S31 = 4,
+      S32 = 11,
+      S33 = 16,
+      S34 = 23
+    const S41 = 6,
+      S42 = 10,
+      S43 = 15,
+      S44 = 21
 
     for (let k = 0; k < x.length; k += 16) {
-      const AA = a, BB = b, CC = c, DD = d
-      a = ff(a, b, c, d, x[k + 0], S11, 0xD76AA478)
-      d = ff(d, a, b, c, x[k + 1], S12, 0xE8C7B756)
-      c = ff(c, d, a, b, x[k + 2], S13, 0x242070DB)
-      b = ff(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE)
-      a = ff(a, b, c, d, x[k + 4], S11, 0xF57C0FAF)
-      d = ff(d, a, b, c, x[k + 5], S12, 0x4787C62A)
-      c = ff(c, d, a, b, x[k + 6], S13, 0xA8304613)
-      b = ff(b, c, d, a, x[k + 7], S14, 0xFD469501)
-      a = ff(a, b, c, d, x[k + 8], S11, 0x698098D8)
-      d = ff(d, a, b, c, x[k + 9], S12, 0x8B44F7AF)
-      c = ff(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1)
-      b = ff(b, c, d, a, x[k + 11], S14, 0x895CD7BE)
-      a = ff(a, b, c, d, x[k + 12], S11, 0x6B901122)
-      d = ff(d, a, b, c, x[k + 13], S12, 0xFD987193)
-      c = ff(c, d, a, b, x[k + 14], S13, 0xA679438E)
-      b = ff(b, c, d, a, x[k + 15], S14, 0x49B40821)
-      a = gg(a, b, c, d, x[k + 1], S21, 0xF61E2562)
-      d = gg(d, a, b, c, x[k + 6], S22, 0xC040B340)
-      c = gg(c, d, a, b, x[k + 11], S23, 0x265E5A51)
-      b = gg(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA)
-      a = gg(a, b, c, d, x[k + 5], S21, 0xD62F105D)
+      const AA = a,
+        BB = b,
+        CC = c,
+        DD = d
+      a = ff(a, b, c, d, x[k + 0], S11, 0xd76aa478)
+      d = ff(d, a, b, c, x[k + 1], S12, 0xe8c7b756)
+      c = ff(c, d, a, b, x[k + 2], S13, 0x242070db)
+      b = ff(b, c, d, a, x[k + 3], S14, 0xc1bdceee)
+      a = ff(a, b, c, d, x[k + 4], S11, 0xf57c0faf)
+      d = ff(d, a, b, c, x[k + 5], S12, 0x4787c62a)
+      c = ff(c, d, a, b, x[k + 6], S13, 0xa8304613)
+      b = ff(b, c, d, a, x[k + 7], S14, 0xfd469501)
+      a = ff(a, b, c, d, x[k + 8], S11, 0x698098d8)
+      d = ff(d, a, b, c, x[k + 9], S12, 0x8b44f7af)
+      c = ff(c, d, a, b, x[k + 10], S13, 0xffff5bb1)
+      b = ff(b, c, d, a, x[k + 11], S14, 0x895cd7be)
+      a = ff(a, b, c, d, x[k + 12], S11, 0x6b901122)
+      d = ff(d, a, b, c, x[k + 13], S12, 0xfd987193)
+      c = ff(c, d, a, b, x[k + 14], S13, 0xa679438e)
+      b = ff(b, c, d, a, x[k + 15], S14, 0x49b40821)
+      a = gg(a, b, c, d, x[k + 1], S21, 0xf61e2562)
+      d = gg(d, a, b, c, x[k + 6], S22, 0xc040b340)
+      c = gg(c, d, a, b, x[k + 11], S23, 0x265e5a51)
+      b = gg(b, c, d, a, x[k + 0], S24, 0xe9b6c7aa)
+      a = gg(a, b, c, d, x[k + 5], S21, 0xd62f105d)
       d = gg(d, a, b, c, x[k + 10], S22, 0x2441453)
-      c = gg(c, d, a, b, x[k + 15], S23, 0xD8A1E681)
-      b = gg(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8)
-      a = gg(a, b, c, d, x[k + 9], S21, 0x21E1CDE6)
-      d = gg(d, a, b, c, x[k + 14], S22, 0xC33707D6)
-      c = gg(c, d, a, b, x[k + 3], S23, 0xF4D50D87)
-      b = gg(b, c, d, a, x[k + 8], S24, 0x455A14ED)
-      a = gg(a, b, c, d, x[k + 13], S21, 0xA9E3E905)
-      d = gg(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8)
-      c = gg(c, d, a, b, x[k + 7], S23, 0x676F02D9)
-      b = gg(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A)
-      a = hh(a, b, c, d, x[k + 5], S31, 0xFFFA3942)
-      d = hh(d, a, b, c, x[k + 8], S32, 0x8771F681)
-      c = hh(c, d, a, b, x[k + 11], S33, 0x6D9D6122)
-      b = hh(b, c, d, a, x[k + 14], S34, 0xFDE5380C)
-      a = hh(a, b, c, d, x[k + 1], S31, 0xA4BEEA44)
-      d = hh(d, a, b, c, x[k + 4], S32, 0x4BDECFA9)
-      c = hh(c, d, a, b, x[k + 7], S33, 0xF6BB4B60)
-      b = hh(b, c, d, a, x[k + 10], S34, 0xBEBFBC70)
-      a = hh(a, b, c, d, x[k + 13], S31, 0x289B7EC6)
-      d = hh(d, a, b, c, x[k + 0], S32, 0xEAA127FA)
-      c = hh(c, d, a, b, x[k + 3], S33, 0xD4EF3085)
-      b = hh(b, c, d, a, x[k + 6], S34, 0x4881D05)
-      a = hh(a, b, c, d, x[k + 9], S31, 0xD9D4D039)
-      d = hh(d, a, b, c, x[k + 12], S32, 0xE6DB99E5)
-      c = hh(c, d, a, b, x[k + 15], S33, 0x1FA27CF8)
-      b = hh(b, c, d, a, x[k + 2], S34, 0xC4AC5665)
-      a = ii(a, b, c, d, x[k + 0], S41, 0xF4292244)
-      d = ii(d, a, b, c, x[k + 7], S42, 0x432AFF97)
-      c = ii(c, d, a, b, x[k + 14], S43, 0xAB9423A7)
-      b = ii(b, c, d, a, x[k + 5], S44, 0xFC93A039)
-      a = ii(a, b, c, d, x[k + 12], S41, 0x655B59C3)
-      d = ii(d, a, b, c, x[k + 3], S42, 0x8F0CCC92)
-      c = ii(c, d, a, b, x[k + 10], S43, 0xFFEFF47D)
-      b = ii(b, c, d, a, x[k + 1], S44, 0x85845DD1)
-      a = ii(a, b, c, d, x[k + 8], S41, 0x6FA87E4F)
-      d = ii(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0)
-      c = ii(c, d, a, b, x[k + 6], S43, 0xA3014314)
-      b = ii(b, c, d, a, x[k + 13], S44, 0x4E0811A1)
-      a = ii(a, b, c, d, x[k + 4], S41, 0xF7537E82)
-      d = ii(d, a, b, c, x[k + 11], S42, 0xBD3AF235)
-      c = ii(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB)
-      b = ii(b, c, d, a, x[k + 9], S44, 0xEB86D391)
+      c = gg(c, d, a, b, x[k + 15], S23, 0xd8a1e681)
+      b = gg(b, c, d, a, x[k + 4], S24, 0xe7d3fbc8)
+      a = gg(a, b, c, d, x[k + 9], S21, 0x21e1cde6)
+      d = gg(d, a, b, c, x[k + 14], S22, 0xc33707d6)
+      c = gg(c, d, a, b, x[k + 3], S23, 0xf4d50d87)
+      b = gg(b, c, d, a, x[k + 8], S24, 0x455a14ed)
+      a = gg(a, b, c, d, x[k + 13], S21, 0xa9e3e905)
+      d = gg(d, a, b, c, x[k + 2], S22, 0xfcefa3f8)
+      c = gg(c, d, a, b, x[k + 7], S23, 0x676f02d9)
+      b = gg(b, c, d, a, x[k + 12], S24, 0x8d2a4c8a)
+      a = hh(a, b, c, d, x[k + 5], S31, 0xfffa3942)
+      d = hh(d, a, b, c, x[k + 8], S32, 0x8771f681)
+      c = hh(c, d, a, b, x[k + 11], S33, 0x6d9d6122)
+      b = hh(b, c, d, a, x[k + 14], S34, 0xfde5380c)
+      a = hh(a, b, c, d, x[k + 1], S31, 0xa4beea44)
+      d = hh(d, a, b, c, x[k + 4], S32, 0x4bdecfa9)
+      c = hh(c, d, a, b, x[k + 7], S33, 0xf6bb4b60)
+      b = hh(b, c, d, a, x[k + 10], S34, 0xbebfbc70)
+      a = hh(a, b, c, d, x[k + 13], S31, 0x289b7ec6)
+      d = hh(d, a, b, c, x[k + 0], S32, 0xeaa127fa)
+      c = hh(c, d, a, b, x[k + 3], S33, 0xd4ef3085)
+      b = hh(b, c, d, a, x[k + 6], S34, 0x4881d05)
+      a = hh(a, b, c, d, x[k + 9], S31, 0xd9d4d039)
+      d = hh(d, a, b, c, x[k + 12], S32, 0xe6db99e5)
+      c = hh(c, d, a, b, x[k + 15], S33, 0x1fa27cf8)
+      b = hh(b, c, d, a, x[k + 2], S34, 0xc4ac5665)
+      a = ii(a, b, c, d, x[k + 0], S41, 0xf4292244)
+      d = ii(d, a, b, c, x[k + 7], S42, 0x432aff97)
+      c = ii(c, d, a, b, x[k + 14], S43, 0xab9423a7)
+      b = ii(b, c, d, a, x[k + 5], S44, 0xfc93a039)
+      a = ii(a, b, c, d, x[k + 12], S41, 0x655b59c3)
+      d = ii(d, a, b, c, x[k + 3], S42, 0x8f0ccc92)
+      c = ii(c, d, a, b, x[k + 10], S43, 0xffeff47d)
+      b = ii(b, c, d, a, x[k + 1], S44, 0x85845dd1)
+      a = ii(a, b, c, d, x[k + 8], S41, 0x6fa87e4f)
+      d = ii(d, a, b, c, x[k + 15], S42, 0xfe2ce6e0)
+      c = ii(c, d, a, b, x[k + 6], S43, 0xa3014314)
+      b = ii(b, c, d, a, x[k + 13], S44, 0x4e0811a1)
+      a = ii(a, b, c, d, x[k + 4], S41, 0xf7537e82)
+      d = ii(d, a, b, c, x[k + 11], S42, 0xbd3af235)
+      c = ii(c, d, a, b, x[k + 2], S43, 0x2ad7d2bb)
+      b = ii(b, c, d, a, x[k + 9], S44, 0xeb86d391)
       a = addUnsigned(a, AA)
       b = addUnsigned(b, BB)
       c = addUnsigned(c, CC)
       d = addUnsigned(d, DD)
     }
 
-    return (wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(d)).toLowerCase()
+    return (
+      wordToHex(a) +
+      wordToHex(b) +
+      wordToHex(c) +
+      wordToHex(d)
+    ).toLowerCase()
   }
 
   function initComments() {
@@ -575,29 +779,57 @@ import emojisConfig from "@data/emojis.json";
 
     const slug = section.dataset.slug
     const title = section.dataset.title
-    const emojisConfig: EmojisConfig = JSON.parse(section.dataset.emojis || '{}')
+    const ownerName = section.dataset.ownerName || ''
+    const ownerEmail = section.dataset.ownerEmail || ''
+    const emojisConfig: EmojisConfig = JSON.parse(
+      section.dataset.emojis || '{}',
+    )
 
     const form = document.getElementById('comment-form') as HTMLFormElement
 
-    const contentTextarea = document.getElementById('comment-content') as HTMLTextAreaElement
+    const contentTextarea = document.getElementById(
+      'comment-content',
+    ) as HTMLTextAreaElement
     const charCount = document.getElementById('char-count') as HTMLElement
-    const nameInput = document.getElementById('comment-name') as HTMLInputElement
-    const emailInput = document.getElementById('comment-email') as HTMLInputElement
-    const websiteInput = document.getElementById('comment-website') as HTMLInputElement
-    const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement
+    const nameInput = document.getElementById(
+      'comment-name',
+    ) as HTMLInputElement
+    const emailInput = document.getElementById(
+      'comment-email',
+    ) as HTMLInputElement
+    const websiteInput = document.getElementById(
+      'comment-website',
+    ) as HTMLInputElement
+    const avatarPreview = document.getElementById(
+      'avatar-preview',
+    ) as HTMLImageElement
 
-    const commentsLoading = document.getElementById('comments-loading') as HTMLElement
+    const commentsLoading = document.getElementById(
+      'comments-loading',
+    ) as HTMLElement
     const commentsList = document.getElementById('comments-list') as HTMLElement
-    const commentsEmpty = document.getElementById('comments-empty') as HTMLElement
-    const commentsError = document.getElementById('comments-error') as HTMLElement
-    const commentsCount = document.getElementById('comments-count') as HTMLElement
+    const commentsEmpty = document.getElementById(
+      'comments-empty',
+    ) as HTMLElement
+    const commentsError = document.getElementById(
+      'comments-error',
+    ) as HTMLElement
+    const commentsErrorMessage = document.getElementById(
+      'comments-error-message',
+    ) as HTMLElement
+    const commentsCount = document.getElementById(
+      'comments-count',
+    ) as HTMLElement
     const countNumber = document.getElementById('count-number') as HTMLElement
     const retryBtn = document.getElementById('retry-load') as HTMLButtonElement
-    let toastContainer = document.getElementById('toast-container') as HTMLElement
+    let toastContainer = document.getElementById(
+      'toast-container',
+    ) as HTMLElement
     if (!toastContainer) {
       toastContainer = document.createElement('div')
       toastContainer.id = 'toast-container'
-      toastContainer.className = 'fixed bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2 transition-all'
+      toastContainer.className =
+        'fixed bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2 transition-all'
       document.body.appendChild(toastContainer)
     }
 
@@ -638,22 +870,26 @@ import emojisConfig from "@data/emojis.json";
     function initEmojiPicker() {
       if (!emojiTabs || !emojiContent || packNames.length === 0) return
 
-      emojiTabs.innerHTML = packNames.map((packKey, index) => {
-        const pack = emojisConfig[packKey]
-        return `
+      emojiTabs.innerHTML = packNames
+        .map((packKey, index) => {
+          const pack = emojisConfig[packKey]
+          return `
           <button type="button" data-pack="${packKey}" title="${pack.name}"
             class="rounded px-2 py-1 text-xs text-nowrap transition ${index === 0 ? 'bg-stone-100 text-stone-900 dark:bg-stone-700 dark:text-stone-100' : 'text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800'}">
             ${pack.name}
           </button>
         `
-      }).join('')
+        })
+        .join('')
 
       if (packNames.length > 0) {
         renderEmojiPack(packNames[0])
       }
 
       emojiTabs.addEventListener('click', (e) => {
-        const tab = (e.target as HTMLElement).closest('[data-pack]') as HTMLElement
+        const tab = (e.target as HTMLElement).closest(
+          '[data-pack]',
+        ) as HTMLElement
         if (tab) {
           const packKey = tab.dataset.pack || ''
           emojiTabs.querySelectorAll('button').forEach((t) => {
@@ -680,10 +916,11 @@ import emojisConfig from "@data/emojis.json";
         html = `<div class="flex flex-wrap gap-1">`
       }
 
-      html += Object.entries(pack.items).map(([name, value]) => {
-        const emojiCode = `:${packKey}_${name}:`
-        if (isImage) {
-          return `
+      html += Object.entries(pack.items)
+        .map(([name, value]) => {
+          const emojiCode = `:${packKey}_${name}:`
+          if (isImage) {
+            return `
             <button type="button" data-emoji="${emojiCode}" title="${name}"
               class="flex items-center justify-center rounded p-1 transition-all hover:bg-stone-100 active:scale-95 dark:hover:bg-stone-700">
               <img alt="${name}" loading="lazy"
@@ -691,23 +928,26 @@ import emojisConfig from "@data/emojis.json";
                 src="${value}" style="width:${size}px;height:${size}px;" />
             </button>
           `
-        } else {
-          // 颜文字样式优化
-          return `
+          } else {
+            // 颜文字样式优化
+            return `
             <button type="button" data-emoji="${value}" title="${name}"
               class="rounded px-2 py-1 text-sm transition-colors hover:bg-stone-100 dark:hover:bg-stone-700">
               ${value}
             </button>
           `
-        }
-      }).join('')
+          }
+        })
+        .join('')
 
       html += `</div>`
       emojiContent.innerHTML = html
     }
 
     emojiContent?.addEventListener('click', (e) => {
-      const item = (e.target as HTMLElement).closest('[data-emoji]') as HTMLElement
+      const item = (e.target as HTMLElement).closest(
+        '[data-emoji]',
+      ) as HTMLElement
       const target = currentEmojiTarget || contentTextarea
 
       if (item && target) {
@@ -744,7 +984,12 @@ import emojisConfig from "@data/emojis.json";
     })
 
     document.addEventListener('click', (e) => {
-      if (emojiPicker && !emojiPicker.contains(e.target as Node) && e.target !== emojiBtn && !emojiBtn?.contains(e.target as Node)) {
+      if (
+        emojiPicker &&
+        !emojiPicker.contains(e.target as Node) &&
+        e.target !== emojiBtn &&
+        !emojiBtn?.contains(e.target as Node)
+      ) {
         emojiPicker.classList.add('hidden')
       }
     })
@@ -769,15 +1014,6 @@ import emojisConfig from "@data/emojis.json";
       }
     }
 
-    function saveUserInfo() {
-      const info: StoredUserInfo = {
-        name: nameInput.value.trim(),
-        email: emailInput.value.trim(),
-        website: websiteInput.value.trim() || undefined,
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(info))
-    }
-
     loadSavedUserInfo()
 
     contentTextarea?.addEventListener('input', () => {
@@ -790,9 +1026,10 @@ import emojisConfig from "@data/emojis.json";
       toast.className = `transform transition-all duration-300 ease-out translate-y-full opacity-0 flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-stone-900 shadow-xl dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100`
 
       toast.innerHTML = `
-        ${type === 'success'
-          ? '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>'
-          : '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
+        ${
+          type === 'success'
+            ? '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>'
+            : '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
         }
         <span>${message}</span>
       `
@@ -812,6 +1049,16 @@ import emojisConfig from "@data/emojis.json";
       }, 3000)
     }
 
+    function showCommentsError(message: string, retryable = true) {
+      commentsLoading.classList.add('hidden')
+      commentsList.classList.add('hidden')
+      commentsEmpty.classList.add('hidden')
+      commentsCount.classList.add('hidden')
+      commentsError.classList.remove('hidden')
+      commentsErrorMessage.textContent = message
+      retryBtn.classList.toggle('hidden', !retryable)
+    }
+
     // 获取用户信息（优先从 localStorage，其次从主表单）
     function getSavedUserInfo(): StoredUserInfo {
       try {
@@ -821,7 +1068,7 @@ import emojisConfig from "@data/emojis.json";
           return {
             name: info.name || nameInput?.value || '',
             email: info.email || emailInput?.value || '',
-            website: info.website || websiteInput?.value || ''
+            website: info.website || websiteInput?.value || '',
           }
         }
       } catch {
@@ -830,12 +1077,15 @@ import emojisConfig from "@data/emojis.json";
       return {
         name: nameInput?.value || '',
         email: emailInput?.value || '',
-        website: websiteInput?.value || ''
+        website: websiteInput?.value || '',
       }
     }
 
     // 生成内联回复表单HTML
-    function createReplyFormHtml(replyToId: number, replyToName: string): string {
+    function createReplyFormHtml(
+      replyToId: number,
+      replyToName: string,
+    ): string {
       // 使用 localStorage 中保存的用户信息，而不是直接从可能被重置的主表单获取
       const userInfo = getSavedUserInfo()
       return `
@@ -912,23 +1162,36 @@ import emojisConfig from "@data/emojis.json";
 
       const parse = (ua: string) => {
         let os = { name: 'Unknown', icon: '' }
-        let browser: { name: string; version: string; icon?: string } = { name: 'Unknown', version: '' }
+        let browser: { name: string; version: string; icon?: string } = {
+          name: 'Unknown',
+          version: '',
+        }
 
         // OS Icons (Simplified paths)
         const icons = {
-          windows: '<path fill="currentColor" d="M2.75 7.189V2.865c0-.102 0-.115.115-.115h8.622c.128 0 .14 0 .14.128V11.5c0 .128 0 .128-.14.128H2.865c-.102 0-.115 0-.115-.116zM7.189 21.25H2.865c-.102 0-.115 0-.115-.116V12.59c0-.128 0-.128.128-.128h8.635c.102 0 .115 0 .115.115v8.57c0 .09 0 .103-.116.103zM21.25 7.189v4.31c0 .116 0 .116-.116.116h-8.557c-.102 0-.128 0-.128-.115V2.865c0-.09 0-.102.115-.102h8.48c.206 0 .206 0 .206.205zm-8.763 9.661v-4.273c0-.09 0-.115.103-.09h8.621c.026 0 0 .09 0 .142v8.518a.06.06 0 0 1-.017.06a.06.06 0 0 1-.06.017H12.54s-.09 0-.077-.09V16.85z"/>',
-          apple: '<path fill="currentColor" d="M11.703 5.616c.03-.905.278-2.237 1.145-3.112c.805-.813 1.785-1.209 2.395-1.39a.347.347 0 0 1 .45.353c-.04.866-.268 2.158-.856 2.85c-.554.652-1.444 1.516-2.749 1.662a.348.348 0 0 1-.385-.363"></path><path fill="currentColor" d="M13.937 22.17c.627.24 1.26.482 1.833.482c1.227 0 4.798-2.83 4.926-5.768a.4.4 0 0 0-.215-.36c-.908-.508-2.392-1.774-2.443-3.615c-.06-2.146 1.017-3.85 1.832-4.555c.184-.159.247-.439.083-.617c-.742-.81-2.234-1.925-3.596-1.898c-.99.02-1.883.39-2.65.706c-.587.243-1.1.455-1.526.455c-.403 0-.887-.21-1.443-.453c-.748-.326-1.626-.708-2.61-.708c-1.824 0-5.428 1.513-5.428 7.352c0 3.095 3.195 9.543 5.892 9.461c.582 0 1.204-.24 1.822-.48c.608-.236 1.211-.47 1.767-.47c.537 0 1.143.233 1.756.468"></path>',
-          android: '<path fill="currentColor" d="M17.6 11.48c0-.79-.64-1.43-1.43-1.43c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43s1.43-.64 1.43-1.43m-9.77 0c0-.79-.64-1.43-1.43-1.43c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43s1.43-.64 1.43-1.43m12.44-2.58l-1.67-2.91a.57.57 0 0 0-.78-.21a.58.58 0 0 0-.21.78l1.63 2.84A9.9 9.9 0 0 0 12 7.77c-2.64 0-5.06 1-6.94 2.65L6.68 7.57a.578.578 0 0 0-.78-.21a.57.57 0 0 0-.21.78l1.67 2.91A9.8 9.8 0 0 0 2 19.34h20c-.06-3.15-2.02-5.94-4.73-7.86"></path>',
-          linux: '<path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8"></path>',
-          chrome: '<path fill="currentColor" d="M9.827 21.763C5.35 20.771 2 16.777 2 12c0-1.822.487-3.53 1.339-5.002l4.283 7.419a5 5 0 0 0 4.976 2.548zM12 22l4.287-7.425A5 5 0 0 0 17 12a4.98 4.98 0 0 0-1-3h5.542A10 10 0 0 1 22 12c0 5.523-4.477 10-10 10m2.572-8.455a3 3 0 0 1-5.17-.045l-.029-.05a3 3 0 1 1 5.225.05zm-9.94-8.306A9.97 9.97 0 0 1 12 2a10 10 0 0 1 8.662 5H12a5 5 0 0 0-4.599 3.034z"></path>',
-          safari: '<g fill="none"><path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/><path fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m7.5 16.5l2.25-6.75L16.5 7.5l-2.25 6.75z"/><path fill="currentColor" fill-rule="evenodd" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2" clip-rule="evenodd"/></g>'
+          windows:
+            '<path fill="currentColor" d="M2.75 7.189V2.865c0-.102 0-.115.115-.115h8.622c.128 0 .14 0 .14.128V11.5c0 .128 0 .128-.14.128H2.865c-.102 0-.115 0-.115-.116zM7.189 21.25H2.865c-.102 0-.115 0-.115-.116V12.59c0-.128 0-.128.128-.128h8.635c.102 0 .115 0 .115.115v8.57c0 .09 0 .103-.116.103zM21.25 7.189v4.31c0 .116 0 .116-.116.116h-8.557c-.102 0-.128 0-.128-.115V2.865c0-.09 0-.102.115-.102h8.48c.206 0 .206 0 .206.205zm-8.763 9.661v-4.273c0-.09 0-.115.103-.09h8.621c.026 0 0 .09 0 .142v8.518a.06.06 0 0 1-.017.06a.06.06 0 0 1-.06.017H12.54s-.09 0-.077-.09V16.85z"/>',
+          apple:
+            '<path fill="currentColor" d="M11.703 5.616c.03-.905.278-2.237 1.145-3.112c.805-.813 1.785-1.209 2.395-1.39a.347.347 0 0 1 .45.353c-.04.866-.268 2.158-.856 2.85c-.554.652-1.444 1.516-2.749 1.662a.348.348 0 0 1-.385-.363"></path><path fill="currentColor" d="M13.937 22.17c.627.24 1.26.482 1.833.482c1.227 0 4.798-2.83 4.926-5.768a.4.4 0 0 0-.215-.36c-.908-.508-2.392-1.774-2.443-3.615c-.06-2.146 1.017-3.85 1.832-4.555c.184-.159.247-.439.083-.617c-.742-.81-2.234-1.925-3.596-1.898c-.99.02-1.883.39-2.65.706c-.587.243-1.1.455-1.526.455c-.403 0-.887-.21-1.443-.453c-.748-.326-1.626-.708-2.61-.708c-1.824 0-5.428 1.513-5.428 7.352c0 3.095 3.195 9.543 5.892 9.461c.582 0 1.204-.24 1.822-.48c.608-.236 1.211-.47 1.767-.47c.537 0 1.143.233 1.756.468"></path>',
+          android:
+            '<path fill="currentColor" d="M17.6 11.48c0-.79-.64-1.43-1.43-1.43c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43s1.43-.64 1.43-1.43m-9.77 0c0-.79-.64-1.43-1.43-1.43c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43s1.43-.64 1.43-1.43m12.44-2.58l-1.67-2.91a.57.57 0 0 0-.78-.21a.58.58 0 0 0-.21.78l1.63 2.84A9.9 9.9 0 0 0 12 7.77c-2.64 0-5.06 1-6.94 2.65L6.68 7.57a.578.578 0 0 0-.78-.21a.57.57 0 0 0-.21.78l1.67 2.91A9.8 9.8 0 0 0 2 19.34h20c-.06-3.15-2.02-5.94-4.73-7.86"></path>',
+          linux:
+            '<path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8"></path>',
+          chrome:
+            '<path fill="currentColor" d="M9.827 21.763C5.35 20.771 2 16.777 2 12c0-1.822.487-3.53 1.339-5.002l4.283 7.419a5 5 0 0 0 4.976 2.548zM12 22l4.287-7.425A5 5 0 0 0 17 12a4.98 4.98 0 0 0-1-3h5.542A10 10 0 0 1 22 12c0 5.523-4.477 10-10 10m2.572-8.455a3 3 0 0 1-5.17-.045l-.029-.05a3 3 0 1 1 5.225.05zm-9.94-8.306A9.97 9.97 0 0 1 12 2a10 10 0 0 1 8.662 5H12a5 5 0 0 0-4.599 3.034z"></path>',
+          safari:
+            '<g fill="none"><path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/><path fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m7.5 16.5l2.25-6.75L16.5 7.5l-2.25 6.75z"/><path fill="currentColor" fill-rule="evenodd" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2" clip-rule="evenodd"/></g>',
         }
 
         // OS Detection - iOS must be checked before macOS (iOS UA contains "Mac OS X")
-        if (/iPhone|iPad|iPod/i.test(ua)) os = { name: 'iOS', icon: icons.apple }
-        else if (/Android/i.test(ua)) os = { name: 'Android', icon: icons.android }
-        else if (/Windows/i.test(ua)) os = { name: 'Windows', icon: icons.windows }
-        else if (/Macintosh|Mac OS X/i.test(ua)) os = { name: 'macOS', icon: icons.apple }
+        if (/iPhone|iPad|iPod/i.test(ua))
+          os = { name: 'iOS', icon: icons.apple }
+        else if (/Android/i.test(ua))
+          os = { name: 'Android', icon: icons.android }
+        else if (/Windows/i.test(ua))
+          os = { name: 'Windows', icon: icons.windows }
+        else if (/Macintosh|Mac OS X/i.test(ua))
+          os = { name: 'macOS', icon: icons.apple }
         else if (/Linux/i.test(ua)) os = { name: 'Linux', icon: icons.linux }
 
         // Browser Detection - Order matters! Check specific browsers before generic ones
@@ -936,14 +1199,26 @@ import emojisConfig from "@data/emojis.json";
         if (/Edg/i.test(ua)) {
           browser = { name: 'Edge', version: ua.match(/Edg\/(\d+)/)?.[1] || '' }
         } else if (/OPR|Opera/i.test(ua)) {
-          browser = { name: 'Opera', version: ua.match(/(?:OPR|Opera)\/(\d+)/)?.[1] || '' }
+          browser = {
+            name: 'Opera',
+            version: ua.match(/(?:OPR|Opera)\/(\d+)/)?.[1] || '',
+          }
         } else if (/Firefox/i.test(ua)) {
-          browser = { name: 'Firefox', version: ua.match(/Firefox\/(\d+)/)?.[1] || '' }
+          browser = {
+            name: 'Firefox',
+            version: ua.match(/Firefox\/(\d+)/)?.[1] || '',
+          }
         } else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
-          browser = { name: 'Chrome', version: ua.match(/Chrome\/(\d+)/)?.[1] || '' }
+          browser = {
+            name: 'Chrome',
+            version: ua.match(/Chrome\/(\d+)/)?.[1] || '',
+          }
           browser.icon = icons.chrome
         } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
-          browser = { name: 'Safari', version: ua.match(/Version\/(\d+)/)?.[1] || '' }
+          browser = {
+            name: 'Safari',
+            version: ua.match(/Version\/(\d+)/)?.[1] || '',
+          }
           browser.icon = icons.safari
         }
 
@@ -957,22 +1232,31 @@ import emojisConfig from "@data/emojis.json";
         return `<span class="text-[10px] text-stone-400 opacity-60 dark:text-stone-500">${truncate(uaString)}</span>`
       }
 
-      const browserIcon = info.browser.icon ?
-        `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" class="h-3 w-3">${info.browser.icon}</svg>` : ''
+      const browserIcon = info.browser.icon
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" class="h-3 w-3">${info.browser.icon}</svg>`
+        : ''
 
       return `
         <div style="display: contents;">
           <div class="group relative inline-flex items-center gap-1 text-[10px] text-stone-400 opacity-60 dark:text-stone-500">
-            ${info.os.name !== 'Unknown' ? `
+            ${
+              info.os.name !== 'Unknown'
+                ? `
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" class="h-3 w-3">
                 ${info.os.icon || '<path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0"/>'}
               </svg>
               <span>${info.os.name}</span>
-            ` : ''}
-            ${info.browser.name !== 'Unknown' ? `
+            `
+                : ''
+            }
+            ${
+              info.browser.name !== 'Unknown'
+                ? `
               ${browserIcon}
               <span>${info.browser.name}${info.browser.version ? ` <span class="mx-px">${info.browser.version}</span>` : ''}</span>
-            ` : ''}
+            `
+                : ''
+            }
           </div>
         </div>
       `
@@ -1025,10 +1309,13 @@ import emojisConfig from "@data/emojis.json";
       const lineClamp = isReply ? 'line-clamp-3' : 'line-clamp-7'
 
       // 渲染子回复 - 后端已按时间正序排序（最早的在前），前端直接使用
-      const repliesHtml = comment.replies && comment.replies.length > 0
-        ? `<div class="replies-container mt-3 hidden" data-parent-id="${comment.id}">
+      const repliesHtml =
+        comment.replies && comment.replies.length > 0
+          ? `<div class="replies-container mt-3 hidden" data-parent-id="${comment.id}">
             <div class="ml-4 space-y-2 divide-y divide-stone-200 border-l border-stone-200 pl-4 dark:divide-stone-700 dark:border-stone-700">
-              ${comment.replies.map(reply => `
+              ${comment.replies
+                .map(
+                  (reply) => `
                 <div class="comment-reply-item pt-3 first:pt-0">
                   <div class="mb-2">
                     <div class="flex items-center gap-3">
@@ -1039,9 +1326,10 @@ import emojisConfig from "@data/emojis.json";
                       </div>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
-                          ${reply.website
-                            ? `<a href="${reply.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${reply.name}</a>`
-                            : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${reply.name}</span>`
+                          ${
+                            reply.website
+                              ? `<a href="${reply.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${reply.name}</a>`
+                              : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${reply.name}</span>`
                           }
                           ${reply.isOwner ? `<span class="bg-stone-100 text-stone-700 rounded px-1 py-px text-[10px] dark:bg-stone-800 dark:text-stone-300">博主</span>` : ''}
                           ${reply.replyTo ? `<span class="text-stone-400 text-[10px] hidden dark:text-stone-500">回复 ${reply.replyTo.name}</span>` : ''}
@@ -1059,10 +1347,12 @@ import emojisConfig from "@data/emojis.json";
                     ${parseMarkdown(reply.content, emojisConfig)}
                   </div>
                 </div>
-              `).join('')}
+              `,
+                )
+                .join('')}
             </div>
           </div>`
-        : ''
+          : ''
 
       const repliesCount = comment.replies?.length || 0
       const hasReplies = repliesCount > 0
@@ -1129,23 +1419,28 @@ import emojisConfig from "@data/emojis.json";
             </div>
           </div>
           <div class="mt-3 flex items-center justify-between border-t border-stone-200 pt-3 dark:border-stone-700">
-            ${hasReplies ? `
+            ${
+              hasReplies
+                ? `
               <button type="button" class="toggle-replies-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200" data-target="${comment.id}" data-expanded="false">
                 <span class="toggle-text">展开回复 (${repliesCount})</span>
                 <svg class="toggle-icon h-3.5 w-3.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <polyline points="6 9 12 15 18 9" stroke-linecap="round" stroke-linejoin="round"></polyline>
                 </svg>
               </button>
-            ` : '<div></div>'}
-            ${comment.isPending
-              ? `<button type="button" class="reply-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-400 transition-all cursor-not-allowed opacity-50 dark:text-stone-500" disabled title="评论正在同步中，请稍候...">
+            `
+                : '<div></div>'
+            }
+            ${
+              comment.isPending
+                ? `<button type="button" class="reply-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-400 transition-all cursor-not-allowed opacity-50 dark:text-stone-500" disabled title="评论正在同步中，请稍候...">
                   回复
                   <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 14 4 9 9 4"></polyline>
                     <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
                   </svg>
                 </button>`
-              : `<button type="button" class="reply-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200">
+                : `<button type="button" class="reply-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200">
                   回复
                   <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 14 4 9 9 4"></polyline>
@@ -1169,13 +1464,37 @@ import emojisConfig from "@data/emojis.json";
         commentsError.classList.add('hidden')
         commentsCount.classList.add('hidden')
 
-        const response = await fetch(`/api/comments?slug=${encodeURIComponent(slug!)}`)
+        const response = await fetch(
+          `/api/comments?slug=${encodeURIComponent(slug!)}`,
+        )
+        const data = await response.json().catch(() => null)
 
         if (!response.ok) {
-          throw new Error('Failed to fetch comments')
-        }
+          if (response.status === 404 || response.status === 405) {
+            showCommentsError(
+              '评论功能还没启用。按 README 接入对应 API 后，这里会自动生效。',
+              false,
+            )
+            return
+          }
 
-        const data = await response.json()
+          if (
+            typeof data?.error === 'string' &&
+            data.error.toLowerCase().includes('configuration')
+          ) {
+            showCommentsError(
+              '评论 API 已部署，但环境变量还没配置完成。',
+              false,
+            )
+            return
+          }
+
+          throw new Error(
+            typeof data?.error === 'string'
+              ? data.error
+              : 'Failed to fetch comments',
+          )
+        }
         let comments: Comment[] = data.comments || []
 
         // 合并本地待确认评论
@@ -1183,7 +1502,9 @@ import emojisConfig from "@data/emojis.json";
 
         // 按最新发布在前排序（降序）
         comments = comments.slice().sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
         })
 
         commentsLoading.classList.add('hidden')
@@ -1194,15 +1515,19 @@ import emojisConfig from "@data/emojis.json";
           // 只统计顶层评论数量
           let totalCount = comments.length
 
-          commentsList.innerHTML = comments.map(c => renderComment(c, false)).join('')
+          commentsList.innerHTML = comments
+            .map((c) => renderComment(c, false))
+            .join('')
           commentsList.classList.remove('hidden')
           countNumber.textContent = String(totalCount)
           commentsCount.classList.remove('hidden')
 
           // 绑定回复按钮事件
-          commentsList.querySelectorAll('.reply-btn').forEach(btn => {
+          commentsList.querySelectorAll('.reply-btn').forEach((btn) => {
             btn.addEventListener('click', (e) => {
-              const button = (e.target as HTMLElement).closest('.reply-btn') as HTMLButtonElement
+              const button = (e.target as HTMLElement).closest(
+                '.reply-btn',
+              ) as HTMLButtonElement
               const article = button.closest('article')
               if (article) {
                 handleReplyClick(article as HTMLElement, button)
@@ -1211,54 +1536,69 @@ import emojisConfig from "@data/emojis.json";
           })
 
           // 绑定展开/收起回复事件
-          commentsList.querySelectorAll('.toggle-replies-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-              const button = (e.target as HTMLElement).closest('.toggle-replies-btn') as HTMLButtonElement
-              if (!button) return
+          commentsList
+            .querySelectorAll('.toggle-replies-btn')
+            .forEach((btn) => {
+              btn.addEventListener('click', (e) => {
+                const button = (e.target as HTMLElement).closest(
+                  '.toggle-replies-btn',
+                ) as HTMLButtonElement
+                if (!button) return
 
-              const targetId = button.dataset.target
-              const isExpanded = button.dataset.expanded === 'true'
-              const container = commentsList.querySelector(`.replies-container[data-parent-id="${targetId}"]`)
+                const targetId = button.dataset.target
+                const isExpanded = button.dataset.expanded === 'true'
+                const container = commentsList.querySelector(
+                  `.replies-container[data-parent-id="${targetId}"]`,
+                )
 
-              if (container) {
-                if (isExpanded) {
-                  container.classList.add('hidden')
-                  button.dataset.expanded = 'false'
-                  const textEl = button.querySelector('.toggle-text')
-                  const iconEl = button.querySelector('.toggle-icon')
-                  if (textEl) {
-                    const count = container.querySelectorAll('.comment-reply-item').length
-                    textEl.textContent = `展开回复 (${count})`
+                if (container) {
+                  if (isExpanded) {
+                    container.classList.add('hidden')
+                    button.dataset.expanded = 'false'
+                    const textEl = button.querySelector('.toggle-text')
+                    const iconEl = button.querySelector('.toggle-icon')
+                    if (textEl) {
+                      const count = container.querySelectorAll(
+                        '.comment-reply-item',
+                      ).length
+                      textEl.textContent = `展开回复 (${count})`
+                    }
+                    if (iconEl) iconEl.classList.remove('rotate-180')
+                  } else {
+                    container.classList.remove('hidden')
+                    button.dataset.expanded = 'true'
+                    const textEl = button.querySelector('.toggle-text')
+                    const iconEl = button.querySelector('.toggle-icon')
+                    if (textEl) {
+                      const count = container.querySelectorAll(
+                        '.comment-reply-item',
+                      ).length
+                      textEl.textContent = `收起回复 (${count})`
+                    }
+                    if (iconEl) iconEl.classList.add('rotate-180')
                   }
-                  if (iconEl) iconEl.classList.remove('rotate-180')
-                } else {
-                  container.classList.remove('hidden')
-                  button.dataset.expanded = 'true'
-                  const textEl = button.querySelector('.toggle-text')
-                  const iconEl = button.querySelector('.toggle-icon')
-                  if (textEl) {
-                    const count = container.querySelectorAll('.comment-reply-item').length
-                    textEl.textContent = `收起回复 (${count})`
-                  }
-                  if (iconEl) iconEl.classList.add('rotate-180')
                 }
-              }
+              })
             })
-          })
         }
       } catch (error) {
         console.error('Load comments error:', error)
-        commentsLoading.classList.add('hidden')
-        commentsError.classList.remove('hidden')
+        showCommentsError('加载评论时出错了，请稍后重试。')
       }
     }
 
     retryBtn?.addEventListener('click', loadComments)
 
     // 处理回复按钮点击（提取为函数以便复用）
-    function handleReplyClick(article: HTMLElement, button?: HTMLButtonElement) {
+    function handleReplyClick(
+      article: HTMLElement,
+      button?: HTMLButtonElement,
+    ) {
       // 检查是否是临时评论或待同步评论，如果是则不允许回复
-      if ((article as HTMLElement).dataset.temp === 'true' || (article as HTMLElement).dataset.pending === 'true') {
+      if (
+        (article as HTMLElement).dataset.temp === 'true' ||
+        (article as HTMLElement).dataset.pending === 'true'
+      ) {
         showToast('评论正在同步中，请稍候...', 'success')
         return
       }
@@ -1275,8 +1615,15 @@ import emojisConfig from "@data/emojis.json";
       }
 
       // 关闭其他打开的回复框
-      document.querySelectorAll('.reply-form-container').forEach(el => el.innerHTML = '')
-      document.querySelectorAll('.reply-btn').forEach(el => el.innerHTML = `回复 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`)
+      document
+        .querySelectorAll('.reply-form-container')
+        .forEach((el) => (el.innerHTML = ''))
+      document
+        .querySelectorAll('.reply-btn')
+        .forEach(
+          (el) =>
+            (el.innerHTML = `回复 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`),
+        )
 
       const id = parseInt(article.dataset.id || '0')
       const name = article.dataset.name || ''
@@ -1319,7 +1666,11 @@ import emojisConfig from "@data/emojis.json";
     }
 
     // 保存待确认评论并立即显示
-    function saveAndDisplayComment(payload: any, isReply: boolean, isVerifiedOwner: boolean = false) {
+    function saveAndDisplayComment(
+      payload: any,
+      isReply: boolean,
+      isVerifiedOwner: boolean = false,
+    ) {
       const now = Date.now()
       const createdAt = new Date().toISOString()
 
@@ -1336,7 +1687,7 @@ import emojisConfig from "@data/emojis.json";
         replyToName: payload.replyToName,
         submittedAt: now,
         isOwner: isVerifiedOwner,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
       }
       addPendingComment(pendingComment)
 
@@ -1348,10 +1699,14 @@ import emojisConfig from "@data/emojis.json";
           // 这是一个回复，添加到父评论的 replies 中
           const articles = commentsList.querySelectorAll('article[data-id]')
           for (const article of articles) {
-            const parentId = parseInt((article as HTMLElement).dataset.id || '0')
+            const parentId = parseInt(
+              (article as HTMLElement).dataset.id || '0',
+            )
             if (parentId === parseInt(payload.replyToId)) {
               // 找到对应的 replies-container
-              const repliesContainer = article.querySelector(`.replies-container[data-parent-id="${parentId}"]`)
+              const repliesContainer = article.querySelector(
+                `.replies-container[data-parent-id="${parentId}"]`,
+              )
               if (repliesContainer) {
                 // 如果 replies 容器存在但是隐藏的，先展开它
                 if (repliesContainer.classList.contains('hidden')) {
@@ -1380,9 +1735,10 @@ import emojisConfig from "@data/emojis.json";
                           </div>
                           <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
-                              ${tempComment.website
-                                ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${tempComment.name}</a>`
-                                : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${tempComment.name}</span>`
+                              ${
+                                tempComment.website
+                                  ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${tempComment.name}</a>`
+                                  : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${tempComment.name}</span>`
                               }
                               ${tempComment.isOwner ? '<span class="bg-stone-100 text-stone-700 rounded px-1 py-px text-[10px] dark:bg-stone-800 dark:text-stone-300">博主</span>' : ''}
                               <span class="text-stone-400 text-[10px] dark:text-stone-500">回复 ${payload.replyToName}</span>
@@ -1406,7 +1762,9 @@ import emojisConfig from "@data/emojis.json";
                   if (toggleBtn) {
                     const textEl = toggleBtn.querySelector('.toggle-text')
                     if (textEl) {
-                      const currentCount = repliesContent.querySelectorAll('.comment-reply-item').length
+                      const currentCount = repliesContent.querySelectorAll(
+                        '.comment-reply-item',
+                      ).length
                       textEl.textContent = `收起回复 (${currentCount})`
                     }
                   }
@@ -1426,9 +1784,10 @@ import emojisConfig from "@data/emojis.json";
                             </div>
                             <div class="min-w-0 flex-1">
                               <div class="flex items-center gap-2">
-                                ${tempComment.website
-                                  ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${tempComment.name}</a>`
-                                  : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${tempComment.name}</span>`
+                                ${
+                                  tempComment.website
+                                    ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-xs dark:text-stone-100">${tempComment.name}</a>`
+                                    : `<span class="font-medium text-stone-900 text-xs dark:text-stone-100">${tempComment.name}</span>`
                                 }
                                 ${tempComment.isOwner ? '<span class="bg-stone-100 text-stone-700 rounded px-1 py-px text-[10px] dark:bg-stone-800 dark:text-stone-300">博主</span>' : ''}
                                 <span class="text-stone-400 text-[10px] dark:text-stone-500">回复 ${payload.replyToName}</span>
@@ -1447,13 +1806,23 @@ import emojisConfig from "@data/emojis.json";
                     </div>
                   </div>
                 `
-                const replyFormContainer = article.querySelector('.reply-form-container')
+                const replyFormContainer = article.querySelector(
+                  '.reply-form-container',
+                )
                 if (replyFormContainer) {
-                  replyFormContainer.insertAdjacentHTML('afterend', tempReplyHtml)
+                  replyFormContainer.insertAdjacentHTML(
+                    'afterend',
+                    tempReplyHtml,
+                  )
 
                   // 添加展开/收起按钮
-                  const buttonContainer = article.querySelector('.mt-3.flex.items-center.justify-between')
-                  if (buttonContainer && buttonContainer.firstElementChild?.tagName === 'DIV') {
+                  const buttonContainer = article.querySelector(
+                    '.mt-3.flex.items-center.justify-between',
+                  )
+                  if (
+                    buttonContainer &&
+                    buttonContainer.firstElementChild?.tagName === 'DIV'
+                  ) {
                     buttonContainer.firstElementChild.outerHTML = `
                       <button type="button" class="toggle-replies-btn inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-700 active:scale-90 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200" data-target="${parentId}" data-expanded="true">
                         <span class="toggle-text">收起回复 (1)</span>
@@ -1481,9 +1850,10 @@ import emojisConfig from "@data/emojis.json";
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
-                      ${tempComment.website
-                        ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-sm dark:text-stone-100">${tempComment.name}</a>`
-                        : `<span class="font-medium text-stone-900 text-sm dark:text-stone-100">${tempComment.name}</span>`
+                      ${
+                        tempComment.website
+                          ? `<a href="${tempComment.website}" target="_blank" rel="noopener noreferrer" class="font-medium text-stone-900 underline decoration-dotted underline-offset-2 hover:decoration-solid text-sm dark:text-stone-100">${tempComment.name}</a>`
+                          : `<span class="font-medium text-stone-900 text-sm dark:text-stone-100">${tempComment.name}</span>`
                       }
                       ${tempComment.isOwner ? '<span class="bg-stone-100 text-stone-700 rounded px-1 py-px text-[10px] dark:bg-stone-800 dark:text-stone-300">博主</span>' : ''}
                     </div>
@@ -1541,11 +1911,8 @@ import emojisConfig from "@data/emojis.json";
       const name = formData.get('name') as string
       const email = (formData.get('email') as string) || undefined
 
-      // 博主身份配置（请替换为你自己的信息）
-      const OWNER_NAME = 'Your Name'
-      const OWNER_EMAIL = 'hi@example.com'
-      const isOwnerName = name === OWNER_NAME
-      const isOwnerEmail = email === OWNER_EMAIL
+      const isOwnerName = ownerName !== '' && name === ownerName
+      const isOwnerEmail = ownerEmail !== '' && email === ownerEmail
 
       // 检查是否需要博主验证（名称或邮箱任一匹配都需要验证）
       let ownerToken: string | undefined = undefined
@@ -1567,7 +1934,7 @@ import emojisConfig from "@data/emojis.json";
         isVerifiedOwner = isOwnerName && isOwnerEmail
       }
 
-      const replyToIdRaw = formData.get('replyToId') as string || undefined
+      const replyToIdRaw = (formData.get('replyToId') as string) || undefined
 
       // 检查 replyToId 是否为临时 id（时间戳格式，大于 1600000000000）
       // GitHub comment id 通常是较小的数字，而临时 id 是 Date.now() 返回的毫秒时间戳
@@ -1587,7 +1954,7 @@ import emojisConfig from "@data/emojis.json";
         website: (formData.get('website') as string) || undefined,
         content: formData.get('content') as string,
         replyToId: replyToIdRaw,
-        replyToName: formData.get('replyToName') as string || undefined,
+        replyToName: (formData.get('replyToName') as string) || undefined,
         _gotcha: formData.get('_gotcha') as string,
         userAgent: navigator.userAgent,
       }
@@ -1597,12 +1964,21 @@ import emojisConfig from "@data/emojis.json";
       }
 
       const isMainForm = targetForm.id === 'comment-form'
-      const submitBtnCurrent = targetForm.querySelector('button[type="submit"]') as HTMLButtonElement
+      const submitBtnCurrent = targetForm.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement
       const submitTextCurrent = submitBtnCurrent.querySelector('span')
-      const submitSpinnerCurrent = submitBtnCurrent.querySelector('.animate-spin')
-      const submitIconCurrent = submitBtnCurrent.querySelector('svg:not(.animate-spin)')
-      const nameInputCurrent = targetForm.querySelector('input[name="name"]') as HTMLInputElement
-      const contentInputCurrent = targetForm.querySelector('textarea') as HTMLTextAreaElement
+      const submitSpinnerCurrent =
+        submitBtnCurrent.querySelector('.animate-spin')
+      const submitIconCurrent = submitBtnCurrent.querySelector(
+        'svg:not(.animate-spin)',
+      )
+      const nameInputCurrent = targetForm.querySelector(
+        'input[name="name"]',
+      ) as HTMLInputElement
+      const contentInputCurrent = targetForm.querySelector(
+        'textarea',
+      ) as HTMLTextAreaElement
 
       if (!payload.name?.trim()) {
         showToast('请留下称呼', 'error')
@@ -1620,7 +1996,7 @@ import emojisConfig from "@data/emojis.json";
       const userInfoToSave: StoredUserInfo = {
         name: payload.name,
         email: payload.email || '',
-        website: payload.website
+        website: payload.website,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userInfoToSave))
 
@@ -1628,7 +2004,8 @@ import emojisConfig from "@data/emojis.json";
       if (!isMainForm) {
         if (nameInput) nameInput.value = userInfoToSave.name
         if (emailInput) emailInput.value = userInfoToSave.email
-        if (websiteInput && userInfoToSave.website) websiteInput.value = userInfoToSave.website
+        if (websiteInput && userInfoToSave.website)
+          websiteInput.value = userInfoToSave.website
       }
 
       submitBtnCurrent.disabled = true
@@ -1645,14 +2022,28 @@ import emojisConfig from "@data/emojis.json";
           body: JSON.stringify(payload),
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => null)
 
         if (!response.ok) {
           // 如果是博主 token 验证失败，清除缓存的 token
           if (response.status === 403 && ownerToken) {
             localStorage.removeItem('owner_token')
           }
-          throw new Error(data.error || '提交失败')
+
+          if (response.status === 404 || response.status === 405) {
+            throw new Error(
+              '评论 API 未启用，请先按 README 部署 /api/submit-comment',
+            )
+          }
+
+          if (
+            typeof data?.error === 'string' &&
+            data.error.toLowerCase().includes('configuration')
+          ) {
+            throw new Error('评论 API 已部署，但环境变量还没配置完成')
+          }
+
+          throw new Error(data?.error || '提交失败')
         }
 
         // 如果是博主评论且验证成功，缓存 token
@@ -1663,37 +2054,45 @@ import emojisConfig from "@data/emojis.json";
         showToast('提交成功，等待半分钟后显示')
 
         // 只重置内容，保留用户信息
-        const contentInput = targetForm.querySelector('textarea') as HTMLTextAreaElement
+        const contentInput = targetForm.querySelector(
+          'textarea',
+        ) as HTMLTextAreaElement
         if (contentInput) contentInput.value = ''
 
         if (isMainForm) {
-           charCount.textContent = '0'
-           // 恢复用户信息到表单（因为我们不再调用 reset）
-           const savedInfo = getSavedUserInfo()
-           if (nameInput) nameInput.value = savedInfo.name
-           if (emailInput) emailInput.value = savedInfo.email
-           if (websiteInput) websiteInput.value = savedInfo.website || ''
+          charCount.textContent = '0'
+          // 恢复用户信息到表单（因为我们不再调用 reset）
+          const savedInfo = getSavedUserInfo()
+          if (nameInput) nameInput.value = savedInfo.name
+          if (emailInput) emailInput.value = savedInfo.email
+          if (websiteInput) websiteInput.value = savedInfo.website || ''
         } else {
-            // 如果是回复，关闭回复框
-            targetForm.parentElement!.innerHTML = ''
-            // 恢复回复按钮状态
-            const article = commentsList.querySelector(`article[data-id="${payload.replyToId}"]`)
-            if (article) {
-                const replyBtn = article.querySelector('.reply-btn')
-                if (replyBtn) {
-                    replyBtn.innerHTML = `回复 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`
-                }
+          // 如果是回复，关闭回复框
+          targetForm.parentElement!.innerHTML = ''
+          // 恢复回复按钮状态
+          const article = commentsList.querySelector(
+            `article[data-id="${payload.replyToId}"]`,
+          )
+          if (article) {
+            const replyBtn = article.querySelector('.reply-btn')
+            if (replyBtn) {
+              replyBtn.innerHTML = `回复 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`
             }
+          }
         }
 
         // 保存到本地缓存并立即显示（不再轮询，刷新页面时会自动验证）
         saveAndDisplayComment(payload, !isMainForm, isVerifiedOwner)
       } catch (error) {
         console.error('Submit error:', error)
-        showToast('提交失败，请重试', 'error')
+        showToast(
+          error instanceof Error ? error.message : '提交失败，请重试',
+          'error',
+        )
       } finally {
         submitBtnCurrent.disabled = false
-        if (submitTextCurrent) submitTextCurrent.textContent = isMainForm ? '提交留言' : '提交回复'
+        if (submitTextCurrent)
+          submitTextCurrent.textContent = isMainForm ? '提交留言' : '提交回复'
         submitIconCurrent?.classList.remove('hidden')
         submitSpinnerCurrent?.classList.add('hidden')
       }
