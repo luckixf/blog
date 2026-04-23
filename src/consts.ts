@@ -1,7 +1,7 @@
 import type { Metadata, Projects, Site, Socials, TechStack } from "@types";
 
 export const SITE: Site = {
-	NAME: "Astro Doge",
+	NAME: "luckixf的blog",
 	EMAIL: "SzLiuXiangfu@outlook.com",
 	DESCRIPTION: "一个简洁轻量的 Astro 博客主题.",
 	NUM_POSTS_ON_HOMEPAGE: 4,
@@ -46,7 +46,6 @@ export const PROJECTS: Projects = [
 			{
 				name: "My Blog",
 				href: "https://github.com/luckixf/blog",
-				homepage: "https://example.com",
 				description: "我的个人博客，基于 Astro Doge 主题",
 			},
 			{
