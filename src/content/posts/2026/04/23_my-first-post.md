@@ -40,10 +40,3 @@ draft: false
 <hr>
 <p>第一次写博客，markdown用起来好麻烦＞﹏＜</p>
 <p>最终完成于4/23，10:46</p>
-
-<div class="relative my-10 flex items-center justify-center">
-  <div class="absolute h-px w-full bg-gradient-to-r from-transparent via-stone-200 to-transparent dark:via-stone-700"></div>
-  <span class="relative flex items-center gap-2 bg-stone-50 px-4 text-sm text-stone-400 dark:bg-stone-950 dark:text-stone-500">
-    <span>End</span>
-  </span>
-</div>
