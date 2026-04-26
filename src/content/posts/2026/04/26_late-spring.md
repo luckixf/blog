@@ -10,7 +10,7 @@ draft: false
 
 - - -
 
-><div style="display: flex; gap: 8px; flex-wrap: nowrap;"> 
+><div style="display: flex; gap: 8px; flex-wrap: nowrap; justify-content: flex-start;"> 
 ><img src="https://image.luckixf.top/2026/04/26/teaching-building-midday.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="图1"> 
 ><img src="https://image.luckixf.top/2026/04/26/classroom-building-sunset.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="图2"> 
 ></div>
@@ -56,14 +56,17 @@ _`光阴荏苒，日月如梭，叹时光飞逝，季春将去`_
 
 这里的街道并不想新疆那般空旷，大多都是小巷，人来人往、车水马龙倒显得有几分拥挤了。城市快速路在校门口紧贴而过，与校区北边界平行而驰，横亘在学校与对面街铺之间，而彼此间唯一通行的天桥，在上面望去，天际线与消失与南边的海海平面重合 。饶是有一番景色。
 
+><div style="text-align: left;">
 ><img src="https://image.luckixf.top/2026/04/26/overpass.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain;" alt="天桥">
->
+></div>
 >
 >好吧，其实看不到海平面
 
 对于海南的总体评价还是热吧，不过偶尔气温骤降的时候还是挺冷的。
 
+> <div style="text-align: left;">
 > <img src="https://image.luckixf.top/2026/04/26/climate.png.webp" style="max-width: 300px; height: auto;object-fit: contain;" alt="气温图">
+> </div>
 
 ---
 
@@ -75,17 +78,17 @@ _`光阴荏苒，日月如梭，叹时光飞逝，季春将去`_
 
 ---
 
-><div style="display: flex; gap: 8px; flex-wrap: nowrap;"> 
+><div style="display: flex; gap: 8px; flex-wrap: nowrap; justify-content: flex-start;"> 
 ><img src="https://image.luckixf.top/2026/04/26/flower trees.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ><img src="https://image.luckixf.top/2026/04/26/blossom.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ></div>
 
-><div style="display: flex; gap: 8px; flex-wrap: nowrap;"> 
+><div style="display: flex; gap: 8px; flex-wrap: nowrap; justify-content: flex-start;"> 
 ><img src="https://image.luckixf.top/2026/04/26/anthemy.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ><img src="https://image.luckixf.top/2026/04/26/flower2.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ></div>
 
-><div style="display: flex; gap: 8px; flex-wrap: nowrap;"> 
+><div style="display: flex; gap: 8px; flex-wrap: nowrap; justify-content: flex-start;"> 
 ><img src="https://image.luckixf.top/2026/04/26/flower3.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ><img src="https://image.luckixf.top/2026/04/26/flower4.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain;" alt="花">
 ></div>
@@ -104,8 +107,9 @@ _`光阴荏苒，日月如梭，叹时光飞逝，季春将去`_
 
 *__最后再放两张图__*
 
+><div style="text-align: left;">
 ><img src="https://image.luckixf.top/2026/04/26/a.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain;" alt="海">
 ><img src="https://image.luckixf.top/2026/04/26/b.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain;" alt="楼">
-
+></div>
 **加油啊，少年**
 ᯠ  \_   ̫  \_ ̥ ᯄ ੭
