@@ -10,9 +10,9 @@ draft: false
 
 - - -
 
-><div style="display: flex; gap: 8px; flex-wrap: nowrap;"> 
-><img src="https://image.luckixf.top/2026/04/26/teaching-building-midday.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图1"> 
-><img src="https://image.luckixf.top/2026/04/26/classroom-building-sunset.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图2"> 
+><div style="display: flex; gap: 10px; flex-wrap: nowrap; justify-content: flex-start;"> 
+><img src="https://image.luckixf.top/2026/04/26/teaching-building-midday.jpg.webp" style="width: 45%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图1"> 
+><img src="https://image.luckixf.top/2026/04/26/classroom-building-sunset.jpg.webp" style="width: 45%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图2"> 
 ></div>
 >
 > 偶然拍下的两张照片
@@ -73,19 +73,20 @@ _`光阴荏苒，日月如梭，叹时光飞逝，季春将去`_
 
 ---
 
-<div style="display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 8px;"> 
-<img src="https://image.luckixf.top/2026/04/26/flower trees.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
-<img src="https://image.luckixf.top/2026/04/26/blossom.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
+
+<div style="display: flex; gap: 10px; margin-bottom: 14px; justify-content: flex-start;">
+  <img src="https://image.luckixf.top/2026/04/26/flower trees.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
+  <img src="https://image.luckixf.top/2026/04/26/blossom.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
 </div>
 
-<div style="display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 8px;"> 
-<img src="https://image.luckixf.top/2026/04/26/anthemy.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
-<img src="https://image.luckixf.top/2026/04/26/anthemy2.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
+<div style="display: flex; gap: 10px; margin-bottom: 14px; justify-content: flex-start;">
+  <img src="https://image.luckixf.top/2026/04/26/anthemy.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
+  <img src="https://image.luckixf.top/2026/04/26/anthemy2.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
 </div>
 
-<div style="display: flex; gap: 8px; flex-wrap: nowrap;margin-bottom: 8px;"> 
-<img src="https://image.luckixf.top/2026/04/26/flower3.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
-<img src="https://image.luckixf.top/2026/04/26/flower2.jpg.webp" style="width: 48%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="花">
+<div style="display: flex; gap: 10px; margin-bottom: 14px; justify-content: flex-start;">
+  <img src="https://image.luckixf.top/2026/04/26/flower3.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
+  <img src="https://image.luckixf.top/2026/04/26/flower2.jpg.webp" style="width: 45%; max-width: 220px; height: auto; object-fit: contain; margin: 0 !important;" alt="花">
 </div>
 
 
