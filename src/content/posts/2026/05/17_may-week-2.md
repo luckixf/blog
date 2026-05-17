@@ -26,11 +26,11 @@ draft: false
 
 偶尔彩虹也会一同出现，颇为壮观华丽。
 
-<img src="https://image.luckixf.top/2026/05/17/rainbow.jpg.webp" style="max-width: 300px;height: atuo;object-fit: contain;" alt="rainbow">
+<img src="https://image.luckixf.top/2026/05/17/rainbow.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="rainbow">
 
 雨后的校园，却也是难得的舒适，有效缓解空气里的炎热，气流吹过时，寒气袭人，身体不由得抖擞。
 
-<img src="https://image.luckixf.top/2026/05/17/water-accumulation-on-the-roadside.jpg.webp" style="max-width: 300px;height: atuo;object-fit: contain;" alt="water-accumulation-on-the-roadside">
+<img src="https://image.luckixf.top/2026/05/17/water-accumulation-on-the-roadside.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="water-accumulation-on-the-roadside">
 
 ---
 
@@ -58,13 +58,13 @@ draft: false
 
 今天跟同学出去吃了烤肉，69贵宾一位。
 
-<img src="https://image.luckixf.top/2026/05/17/barbecue.jpg.webp" style="max-width: 300px;height: atuo;object-fit: contain;" alt="barbecue">
+<img src="https://image.luckixf.top/2026/05/17/barbecue.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="barbecue">
 
 完事后本想去网吧的，发现环境并不是那么的理想，而且价格也不是很划得来，便回去了。
 
 在同学去买零食的时候，顺手买了个小玩具。
 
-<img src="https://image.luckixf.top/2026/05/17/nailoong.jpg.webp" style="max-width: 300px;height: atuo;object-fit: contain;" alt="nailoong">
+<img src="https://image.luckixf.top/2026/05/17/nailoong.jpg.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="nailoong">
 
 周三考试的时候，发现计算机电池没电了，借助宿舍楼下的手机修理铺里的小螺丝刀，拆开看了一下，校园里没有卖该种型号的纽扣电池，便在淘宝上网购了四个cr2032型号的，买这个型号因为自己不知道这些个型号是怎么区分的，便对照着计算机的牌子型号去问豆包。但当货到了之后，才发现豆包给的型号完完全全是错误的，买回来的电池根本装不进去。
 
