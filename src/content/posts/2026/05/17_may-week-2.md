@@ -18,7 +18,7 @@ draft: false
   
 雨下的好大，噼噼啪啪的打落在地面的构筑物上，水汽升腾，绕有一番雾气蒙蒙的感觉，空气中充满水雾，五十米外便已经是模糊不清。
 
-<img src="https://image.luckixf.top/2026/05/17/rain-pitchforks(1).jpg.webp" style="max-width: 300px; height: auto;object-fit: contain;" alt="rain-pitchforks">
+<img src="https://image.luckixf.top/2026/05/17/rain-pitchforks(1).jpg.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="rain-pitchforks">
 
 [下大雨-哔哩哔哩](https://b23.tv/WD5QUE8)
 
