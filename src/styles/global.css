@@ -1249,15 +1249,6 @@ header > div {
   color: var(--kawaii-primary-strong);
 }
 
-.site-brand-dot {
-  width: 0.48rem;
-  height: 0.48rem;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--kawaii-primary);
-  box-shadow: 0 0 0 3px rgb(var(--kawaii-primary-rgb) / 0.12);
-}
-
 .site-brand-name {
   max-width: 11rem;
   overflow: hidden;
