@@ -84,16 +84,18 @@ thoughts.forEach((thought) => {
 
 <PageLayout title={THOUGHTS.TITLE} description={THOUGHTS.DESCRIPTION}>
   <Container>
-    <div class="space-y-8">
+    <div class="thought-page space-y-8">
       <div class="animate">
         <h1 class="text-3xl font-semibold text-stone-900 dark:text-stone-100">
           碎碎念
         </h1>
-        <p class="mt-4 text-stone-600 dark:text-stone-400">
-          {`共 ${collection.length} 条碎碎念`}
+        <p
+          class="mt-4 max-w-2xl text-sm leading-7 text-stone-600 sm:text-base dark:text-stone-400"
+        >
+          {`一些不成文的瞬间，记录生活、心情与灵感。共 ${collection.length} 条内容。`}
         </p>
       </div>
-      <ul class="flex flex-col space-y-0">
+      <ul class="thought-feed">
         {
           thoughts.map((entry) => {
             const colorIdx = dateColorMap.get(entry.dateStr) || 0
@@ -101,10 +103,14 @@ thoughts.forEach((thought) => {
             return (
               <li
                 id={`${entry.thoughtId}`}
-                class={`animate scroll-mt-20 ${color.light} ${color.dark} group`}
+                class={`thought-item animate scroll-mt-24 ${color.light} ${color.dark} group`}
               >
-                <div class="flex flex-wrap items-center gap-1.5 py-1.5 text-xs font-medium sm:gap-2">
-                  <div class={`h-2 w-2 ${color.bg} rounded-full shadow-sm`} />
+                <div class="thought-card">
+                  <div class="thought-meta">
+                    <span
+                      class={`thought-pin ${color.bg}`}
+                      aria-hidden="true"
+                    />
                   <a
                     href={`#${entry.thoughtId}`}
                     class={`thought-anchor cursor-pointer ${color.text} font-semibold transition-opacity hover:opacity-70`}
@@ -113,8 +119,8 @@ thoughts.forEach((thought) => {
                   >
                     #{entry.thoughtId}
                   </a>
-                  <span class="text-stone-300 dark:text-stone-600">·</span>
-                  <span class="text-stone-500 dark:text-stone-400">
+                  <span class="thought-separator">·</span>
+                  <span>
                     发布于
                     <span
                       class="time-ago"
@@ -123,20 +129,18 @@ thoughts.forEach((thought) => {
                       {timeAgo(entry.data.date)}
                     </span>
                   </span>
-                  <span class="text-stone-300 dark:text-stone-600">·</span>
-                  <span class="font-mono text-stone-500 dark:text-stone-400">
+                  <span class="thought-separator">·</span>
+                  <span class="font-mono">
                     {formatThoughtDate(entry.data.date)}
                   </span>
-                  <span class="hidden text-stone-500 sm:inline dark:text-stone-400">
+                  <span class="hidden sm:inline">
                     {getWeekday(entry.data.date)}
                   </span>
-                  <span class="ml-auto flex items-center gap-1.5 sm:gap-2">
+                  <span class="thought-actions">
                     {entry.data.tags && entry.data.tags.length > 0 && (
-                      <span class="thought-tags-wrapper hidden items-center gap-1.5 sm:flex sm:gap-2">
-                        <span class="text-stone-300 dark:text-stone-600">
-                          ·
-                        </span>
-                        <span class="text-stone-400 dark:text-stone-500">
+                      <span class="thought-tags-wrapper">
+                        <span class="thought-separator">·</span>
+                        <span>
                           {entry.data.tags
                             .map((tag: string) => `#${tag}`)
                             .join(' ')}
@@ -189,10 +193,11 @@ thoughts.forEach((thought) => {
                     </span>
                   </span>
                 </div>
-                <div class="mb-4 ml-0.5 border-b border-stone-200 py-3 sm:mb-0 sm:border-b-0 sm:border-l-2 sm:pl-6 dark:border-stone-800">
-                  <article class="thought-handwriting prose-p:my-4! text-sm! font-medium [&_img]:my-2 [&_img]:mr-auto [&_img]:ml-0! [&_img]:h-auto [&_img]:w-auto [&_img]:max-w-60 [&_img]:object-contain sm:[&_img]:max-w-xs">
-                    <entry.Content />
-                  </article>
+                  <div class="thought-content-wrap">
+                    <article class="thought-handwriting thought-content prose-p:my-3! text-sm! font-medium [&_img]:my-2 [&_img]:mr-auto [&_img]:ml-0! [&_img]:h-auto [&_img]:w-auto [&_img]:max-w-60 [&_img]:object-contain sm:[&_img]:max-w-xs">
+                      <entry.Content />
+                    </article>
+                  </div>
                 </div>
               </li>
             )
@@ -504,6 +509,160 @@ thoughts.forEach((thought) => {
 </script>
 
 <style>
+  .thought-feed {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .thought-feed::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.54rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--kawaii-primary-rgb) / 0.28),
+      transparent
+    );
+  }
+
+  .thought-item {
+    position: relative;
+    padding-left: 1.6rem;
+  }
+
+  .thought-card {
+    position: relative;
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.16);
+    border-radius: 1.1rem;
+    background: color-mix(
+      in srgb,
+      var(--kawaii-surface-soft) 54%,
+      transparent
+    );
+    padding: 0.85rem 1rem 0.95rem;
+    box-shadow: 0 10px 28px rgb(var(--kawaii-primary-rgb) / 0.07);
+    backdrop-filter: blur(10px) saturate(1.06);
+    -webkit-backdrop-filter: blur(10px) saturate(1.06);
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .thought-card:hover {
+    transform: translateY(-1px);
+    border-color: rgb(var(--kawaii-primary-rgb) / 0.28);
+    background: color-mix(
+      in srgb,
+      var(--kawaii-surface-soft) 68%,
+      transparent
+    );
+    box-shadow: 0 14px 32px rgb(var(--kawaii-primary-rgb) / 0.11);
+  }
+
+  .thought-pin {
+    position: absolute;
+    top: 1.05rem;
+    left: -1.42rem;
+    width: 0.68rem;
+    height: 0.68rem;
+    border-radius: 999px;
+    box-shadow:
+      0 0 0 4px rgb(var(--kawaii-primary-rgb) / 0.1),
+      0 8px 20px rgb(var(--kawaii-primary-rgb) / 0.18);
+  }
+
+  .thought-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.38rem 0.55rem;
+    color: var(--kawaii-muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .thought-separator {
+    color: rgb(var(--kawaii-primary-rgb) / 0.35);
+  }
+
+  .thought-actions {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .thought-tags-wrapper {
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--kawaii-muted-soft);
+  }
+
+  .thought-content-wrap {
+    margin-top: 0.45rem;
+    padding-left: 0;
+  }
+
+  .thought-content {
+    color: var(--kawaii-text);
+  }
+
+  .thought-content :global(p:first-child) {
+    margin-top: 0.35rem !important;
+  }
+
+  .thought-content :global(img) {
+    border-radius: 0.85rem;
+    box-shadow: 0 10px 26px rgb(var(--kawaii-primary-rgb) / 0.12);
+  }
+
+  :global(html.dark) .thought-card {
+    border-color: rgb(var(--kawaii-primary-rgb) / 0.2);
+    background: color-mix(
+      in srgb,
+      var(--kawaii-surface-soft) 72%,
+      transparent
+    );
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
+  }
+
+  @media (min-width: 640px) {
+    .thought-feed {
+      gap: 0.95rem;
+    }
+
+    .thought-card {
+      padding: 0.95rem 1.15rem 1.05rem;
+    }
+
+    .thought-tags-wrapper {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .thought-actions {
+      width: 100%;
+      margin-left: 0;
+      justify-content: space-between;
+    }
+
+    .thought-card {
+      border-radius: 0.95rem;
+      padding: 0.8rem 0.85rem;
+    }
+  }
+
   .highlight-thought {
     animation: highlightPulse 2s ease-out;
   }
