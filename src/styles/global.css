@@ -70,7 +70,7 @@ mark {
 }
 
 article {
-  @apply prose dark:prose-invert prose-img:mx-auto prose-img:my-auto max-w-full;
+  @apply prose dark:prose-invert max-w-full;
   @apply prose-headings:font-semibold prose-p:font-sans;
   @apply prose-headings:text-stone-900 prose-headings:dark:text-stone-100;
 }
@@ -1457,6 +1457,16 @@ article blockquote {
   border-color: var(--kawaii-primary) !important;
   background: rgb(var(--kawaii-primary-rgb) / 0.08);
   color: var(--kawaii-muted) !important;
+}
+
+article :where(div[style*='display: flex'], div[style*='display:flex']) img {
+  display: block;
+  flex-shrink: 1;
+  margin: 0;
+}
+
+article :where(div[style*='display: flex'], div[style*='display:flex']) img[style] {
+  max-width: revert-layer;
 }
 
 article code:not(pre code) {

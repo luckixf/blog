@@ -3,7 +3,7 @@ import { type CollectionEntry, getCollection, render } from 'astro:content'
 import Container from '@components/Container.astro'
 import { THOUGHTS } from '@consts'
 import PageLayout from '@layouts/PageLayout.astro'
-import { formatThoughtDate, getWeekday, timeAgo } from '@lib/utils'
+import { formatThoughtDate, formatYMD, getWeekday, timeAgo } from '@lib/utils'
 
 const collection = (await getCollection('thoughts'))
   .filter((thought: CollectionEntry<'thoughts'>) => !thought.data.draft)
@@ -16,7 +16,7 @@ const thoughts = await Promise.all(
   collection.map(async (item: CollectionEntry<'thoughts'>, index: number) => {
     const { Content } = await render(item)
     const thoughtId = collection.length - index
-    const dateStr = item.data.date.toISOString().split('T')[0]
+    const dateStr = formatYMD(item.data.date)
     return { ...item, Content, thoughtId, dateStr }
   }),
 )
@@ -194,7 +194,7 @@ thoughts.forEach((thought) => {
                   </span>
                 </div>
                   <div class="thought-content-wrap">
-                    <article class="thought-handwriting thought-content prose-p:my-3! text-sm! font-medium [&_img]:my-2 [&_img]:mr-auto [&_img]:ml-0! [&_img]:h-auto [&_img]:w-auto [&_img]:max-w-60 [&_img]:object-contain sm:[&_img]:max-w-xs">
+                    <article class="thought-handwriting thought-content prose-p:my-3! text-sm! font-medium [&_img]:h-auto [&_img]:object-contain">
                       <entry.Content />
                     </article>
                   </div>
@@ -622,6 +622,8 @@ thoughts.forEach((thought) => {
   }
 
   .thought-content :global(img) {
+    max-width: 100%;
+    height: auto;
     border-radius: 0.85rem;
     box-shadow: 0 10px 26px rgb(var(--kawaii-primary-rgb) / 0.12);
   }

@@ -5,8 +5,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+const DISPLAY_TIME_ZONE = 'Asia/Shanghai'
+
+function getZonedParts(date: Date | string | number) {
+  const d = date instanceof Date ? date : new Date(date)
+  if (Number.isNaN(d.getTime())) return null
+
+  const parts = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: DISPLAY_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d)
+
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? ''
+
+  return {
+    year: value('year'),
+    month: value('month'),
+    day: value('day'),
+    hour: value('hour'),
+    minute: value('minute'),
+  }
+}
+
 export function formatDate(date: Date) {
   return Intl.DateTimeFormat('zh-CN', {
+    timeZone: DISPLAY_TIME_ZONE,
     month: 'short',
     day: '2-digit',
     year: 'numeric',
@@ -14,21 +43,15 @@ export function formatDate(date: Date) {
 }
 
 export function formatYMD(date: Date | string | number): string {
-  const d = date instanceof Date ? date : new Date(date)
-  if (Number.isNaN(d.getTime())) return ''
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}.${m}.${day}`
+  const parts = getZonedParts(date)
+  if (!parts) return ''
+  return `${parts.year}.${parts.month}.${parts.day}`
 }
 
 export function formatMD(date: Date | string | number): string {
-  const d = date instanceof Date ? date : new Date(date)
-  if (!d || Number.isNaN(d.getTime())) return ''
-  const month = d.getMonth() + 1
-  const day = d.getDate()
-  const pad2 = (n: number) => n.toString().padStart(2, '0')
-  return `${pad2(month)}.${pad2(day)}`
+  const parts = getZonedParts(date)
+  if (!parts) return ''
+  return `${parts.month}.${parts.day}`
 }
 
 /**
@@ -144,7 +167,11 @@ export function timeAgo(date: Date): string {
 
 export function getWeekday(date: Date): string {
   const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-  return weekdays[date.getDay()]
+  const weekday = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: DISPLAY_TIME_ZONE,
+    weekday: 'short',
+  }).format(date)
+  return weekdays.includes(weekday) ? weekday : weekdays[date.getDay()]
 }
 
 /**
@@ -153,15 +180,13 @@ export function getWeekday(date: Date): string {
  * - 跨年：YYYY-MM-DD HH:mm
  */
 export function formatThoughtDate(date: Date): string {
-  const now = new Date()
-  const pad2 = (n: number) => String(n).padStart(2, '0')
-  const month = pad2(date.getMonth() + 1)
-  const day = pad2(date.getDate())
-  const hour = pad2(date.getHours())
-  const minute = pad2(date.getMinutes())
-  const time = `${hour}:${minute}`
-  if (date.getFullYear() === now.getFullYear()) {
-    return `${month}-${day} ${time}`
+  const parts = getZonedParts(date)
+  const nowParts = getZonedParts(new Date())
+  if (!parts || !nowParts) return ''
+
+  const time = `${parts.hour}:${parts.minute}`
+  if (parts.year === nowParts.year) {
+    return `${parts.month}-${parts.day} ${time}`
   }
-  return `${date.getFullYear()}-${month}-${day} ${time}`
+  return `${parts.year}-${parts.month}-${parts.day} ${time}`
 }
