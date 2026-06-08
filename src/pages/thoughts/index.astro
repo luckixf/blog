@@ -1,211 +1,153 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content'
 import Container from '@components/Container.astro'
+import ThoughtItem from '@components/ThoughtItem.astro'
 import { THOUGHTS } from '@consts'
 import PageLayout from '@layouts/PageLayout.astro'
-import { formatThoughtDate, formatYMD, getWeekday, timeAgo } from '@lib/utils'
+import {
+  THOUGHTS_PAGE_SIZE,
+  getSortedThoughts,
+  getThoughtCatalog,
+  getThoughtStats,
+  getThoughtChunks,
+  renderThoughtEntries,
+} from '@lib/thoughts'
 
-const collection = (await getCollection('thoughts'))
-  .filter((thought: CollectionEntry<'thoughts'>) => !thought.data.draft)
-  .sort(
-    (a: CollectionEntry<'thoughts'>, b: CollectionEntry<'thoughts'>) =>
-      new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
-  )
-
-const thoughts = await Promise.all(
-  collection.map(async (item: CollectionEntry<'thoughts'>, index: number) => {
-    const { Content } = await render(item)
-    const thoughtId = collection.length - index
-    const dateStr = formatYMD(item.data.date)
-    return { ...item, Content, thoughtId, dateStr }
-  }),
-)
-
-const colors = [
-  {
-    bg: 'bg-rose-300',
-    light: 'border-rose-300',
-    dark: 'dark:border-rose-500/40',
-    text: 'text-rose-500',
-  },
-  {
-    bg: 'bg-orange-300',
-    light: 'border-orange-300',
-    dark: 'dark:border-orange-500/40',
-    text: 'text-orange-500',
-  },
-  {
-    bg: 'bg-amber-300',
-    light: 'border-amber-300',
-    dark: 'dark:border-amber-500/40',
-    text: 'text-amber-500',
-  },
-  {
-    bg: 'bg-sky-300',
-    light: 'border-sky-300',
-    dark: 'dark:border-sky-500/40',
-    text: 'text-sky-500',
-  },
-  {
-    bg: 'bg-indigo-300',
-    light: 'border-indigo-300',
-    dark: 'dark:border-indigo-500/40',
-    text: 'text-indigo-500',
-  },
-  {
-    bg: 'bg-purple-300',
-    light: 'border-purple-300',
-    dark: 'dark:border-purple-500/40',
-    text: 'text-purple-500',
-  },
-  {
-    bg: 'bg-fuchsia-300',
-    light: 'border-fuchsia-300',
-    dark: 'dark:border-fuchsia-500/40',
-    text: 'text-fuchsia-500',
-  },
-  {
-    bg: 'bg-pink-300',
-    light: 'border-pink-300',
-    dark: 'dark:border-pink-500/40',
-    text: 'text-pink-500',
-  },
-]
-
-const dateColorMap = new Map<string, number>()
-let colorIndex = 0
-thoughts.forEach((thought) => {
-  if (!dateColorMap.has(thought.dateStr)) {
-    dateColorMap.set(thought.dateStr, colorIndex % colors.length)
-    colorIndex++
-  }
-})
+const collection = await getSortedThoughts()
+const chunks = getThoughtChunks(collection)
+const thoughts = await renderThoughtEntries(chunks[0] ?? [], collection)
+const catalog = getThoughtCatalog(collection)
+const stats = getThoughtStats(collection)
+const totalPages = chunks.length
 ---
 
 <PageLayout title={THOUGHTS.TITLE} description={THOUGHTS.DESCRIPTION}>
   <Container>
-    <div class="thought-page space-y-8">
-      <div class="animate">
-        <h1 class="text-3xl font-semibold text-stone-900 dark:text-stone-100">
-          碎碎念
-        </h1>
-        <p
-          class="mt-4 max-w-2xl text-sm leading-7 text-stone-600 sm:text-base dark:text-stone-400"
-        >
-          {`一些不成文的瞬间，记录生活、心情与灵感。共 ${collection.length} 条内容。`}
+    <div
+      class="thought-page space-y-8"
+      data-page-size={THOUGHTS_PAGE_SIZE}
+      data-total-items={collection.length}
+      data-total-pages={totalPages}
+      data-loaded-page="1"
+    >
+      <section class="thought-hero animate">
+        <div class="thought-title-row">
+          <h1 class="text-3xl font-semibold text-stone-900 dark:text-stone-100">
+            碎碎念
+          </h1>
+          <a class="thought-rss-link" href="/rss.xml" target="_blank" rel="noopener noreferrer">
+            RSS
+          </a>
+        </div>
+        <p class="thought-description">
+          {
+            `一些不成文的瞬间，记录生活、心情与灵感。共 ${stats.total} 条内容，月均 ${stats.monthlyAverage} 条，累计 ${stats.totalWords.toLocaleString('zh-CN')} 字。`
+          }
         </p>
-      </div>
-      <ul class="thought-feed">
-        {
-          thoughts.map((entry) => {
-            const colorIdx = dateColorMap.get(entry.dateStr) || 0
-            const color = colors[colorIdx]
-            return (
-              <li
-                id={`${entry.thoughtId}`}
-                class={`thought-item animate scroll-mt-24 ${color.light} ${color.dark} group`}
-              >
-                <div class="thought-card">
-                  <div class="thought-meta">
-                    <span
-                      class={`thought-pin ${color.bg}`}
-                      aria-hidden="true"
-                    />
+      </section>
+
+      {
+        catalog.length > 0 && (
+          <nav class="thought-toc animate" aria-label="碎碎念目录">
+            <div class="thought-toc-title">目录</div>
+            <ol class="thought-toc-list">
+              {catalog.map((item) => (
+                <li>
                   <a
-                    href={`#${entry.thoughtId}`}
-                    class={`thought-anchor cursor-pointer ${color.text} font-semibold transition-opacity hover:opacity-70`}
-                    data-thought-id={entry.thoughtId}
-                    title="复制链接"
+                    href={`#${item.id}`}
+                    class="thought-toc-link"
+                    data-toc-link
+                    data-thought-id={item.id}
+                    data-page={item.chunk}
+                    title={`#${item.id} ${item.label}`}
                   >
-                    #{entry.thoughtId}
+                    <span class="thought-toc-number">#{item.id}</span>
+                    <span class="thought-toc-text">{item.label}</span>
+                    <span class="thought-toc-date">{item.shortDate}</span>
                   </a>
-                  <span class="thought-separator">·</span>
-                  <span>
-                    发布于
-                    <span
-                      class="time-ago"
-                      data-timestamp={entry.data.date.getTime()}
-                    >
-                      {timeAgo(entry.data.date)}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+
+      <section class="thought-main animate">
+        {
+          thoughts.length > 0 ? (
+            <>
+              <ul class="thought-feed" data-thought-feed>
+                {thoughts.map((entry) => (
+                  <ThoughtItem entry={entry} />
+                ))}
+              </ul>
+              {totalPages > 1 && (
+                <div class="thought-load-wrap">
+                  <button
+                    type="button"
+                    class="thought-load-more"
+                    data-load-more
+                    data-next-page="2"
+                  >
+                    <span data-load-text>
+                      继续加载 {Math.min(THOUGHTS_PAGE_SIZE, collection.length - THOUGHTS_PAGE_SIZE)} 条
                     </span>
-                  </span>
-                  <span class="thought-separator">·</span>
-                  <span class="font-mono">
-                    {formatThoughtDate(entry.data.date)}
-                  </span>
-                  <span class="hidden sm:inline">
-                    {getWeekday(entry.data.date)}
-                  </span>
-                  <span class="thought-actions">
-                    {entry.data.tags && entry.data.tags.length > 0 && (
-                      <span class="thought-tags-wrapper">
-                        <span class="thought-separator">·</span>
-                        <span>
-                          {entry.data.tags
-                            .map((tag: string) => `#${tag}`)
-                            .join(' ')}
-                        </span>
-                      </span>
-                    )}
-                    <span class="thought-like-wrap relative">
-                      <button
-                        type="button"
-                        class="thought-like-btn group/like flex items-center gap-1 rounded-full px-1.5 py-0.5 text-stone-400 transition-all duration-200 hover:text-rose-500 sm:px-2 sm:py-1 dark:text-stone-600 dark:hover:text-rose-400"
-                        data-thought-id={entry.thoughtId}
-                        data-liked="false"
-                        aria-label={`为第 ${entry.thoughtId} 条碎碎念点赞`}
-                      >
-                        <span
-                          class="thought-heart-empty"
-                          style="display:inline-flex;align-items:center;justify-content:center;"
-                        >
-                          <svg
-                            class="h-3.5 w-3.5 transition-colors duration-200 group-hover/like:text-rose-500"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                          </svg>
-                        </span>
-                        <span
-                          class="thought-heart-filled"
-                          style="display:none;align-items:center;justify-content:center;"
-                        >
-                          <svg
-                            class="h-3.5 w-3.5 text-rose-500 dark:text-rose-400"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            stroke="none"
-                          >
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                          </svg>
-                        </span>
-                        <span class="thought-like-count text-[11px] leading-none tabular-nums" />
-                      </button>
-                      <span
-                        class="thought-bubble pointer-events-none absolute right-0 bottom-full mb-1.5 rounded-md px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap opacity-0"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </span>
+                  </button>
+                  <p class="thought-load-hint">
+                    首屏只加载最近 {Math.min(THOUGHTS_PAGE_SIZE, collection.length)} 条，图片随内容进入页面后再请求。
+                  </p>
                 </div>
-                  <div class="thought-content-wrap">
-                    <article class="thought-handwriting thought-content prose-p:my-3! text-sm! font-medium [&_img]:h-auto [&_img]:object-contain">
-                      <entry.Content />
-                    </article>
-                  </div>
-                </div>
-              </li>
-            )
-          })
+              )}
+            </>
+          ) : (
+            <div class="thought-empty">还没有碎碎念，快来记录第一条吧。</div>
+          )
         }
-      </ul>
+      </section>
     </div>
   </Container>
+
+  {
+    catalog.length > 0 && (
+      <>
+        <button
+          type="button"
+          class="thought-mobile-toc-button"
+          data-mobile-toc-open
+          aria-label="打开碎碎念目录"
+        >
+          目录
+        </button>
+        <div class="thought-mobile-toc-mask" data-mobile-toc-mask hidden></div>
+        <aside class="thought-mobile-toc" data-mobile-toc aria-hidden="true">
+          <div class="thought-mobile-toc-handle" aria-hidden="true"></div>
+          <div class="thought-mobile-toc-head">
+            <span>碎碎念目录</span>
+            <button type="button" data-mobile-toc-close aria-label="关闭碎碎念目录">
+              关闭
+            </button>
+          </div>
+          <ol class="thought-mobile-toc-list">
+            {catalog.map((item) => (
+              <li>
+                <a
+                  href={`#${item.id}`}
+                  class="thought-mobile-toc-link"
+                  data-toc-link
+                  data-thought-id={item.id}
+                  data-page={item.chunk}
+                  title={`#${item.id} ${item.label}`}
+                >
+                  <span class="thought-toc-number">#{item.id}</span>
+                  <span class="thought-toc-text">{item.label}</span>
+                  <span class="thought-toc-date">{item.shortDate}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </aside>
+      </>
+    )
+  }
 
   <div
     id="copy-toast"
@@ -224,6 +166,7 @@ thoughts.forEach((thought) => {
   import { formatLikeCount, getLikes, sendLike } from '@lib/likes-client'
 
   let toastTimer: ReturnType<typeof setTimeout> | null = null
+  let loadingPage: Promise<void> | null = null
 
   function showToast(message: string) {
     const toast = document.getElementById('copy-toast')
@@ -308,53 +251,61 @@ thoughts.forEach((thought) => {
     bubbleTimers.set(id, timer)
   }
 
-  function setupAnchorLinks() {
-    document.querySelectorAll('.thought-anchor').forEach((anchor) => {
-      anchor.addEventListener('click', async (e) => {
+  async function copyAndScrollToThought(thoughtId: string) {
+    const url = `${window.location.origin}${window.location.pathname}#${thoughtId}`
+
+    try {
+      await navigator.clipboard.writeText(url)
+      showToast('✓ 链接已复制')
+    } catch {
+      // ignore copy failure
+    }
+
+    history.pushState(null, '', `#${thoughtId}`)
+
+    const element = document.getElementById(`${thoughtId}`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      highlightElement(element)
+    }
+  }
+
+  function setupAnchorLinks(root: ParentNode = document) {
+    root.querySelectorAll('.thought-anchor').forEach((anchor) => {
+      const el = anchor as HTMLElement
+      if (el.dataset.anchorBound === 'true') return
+      el.dataset.anchorBound = 'true'
+
+      el.addEventListener('click', async (e) => {
         e.preventDefault()
-        const thoughtId = (anchor as HTMLElement).dataset.thoughtId
-        const url = `${window.location.origin}${window.location.pathname}#${thoughtId}`
-
-        try {
-          await navigator.clipboard.writeText(url)
-          showToast('✓ 链接已复制')
-        } catch {
-          // ignore copy failure
-        }
-
-        history.pushState(null, '', `#${thoughtId}`)
-
-        const element = document.getElementById(`${thoughtId}`)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
+        const thoughtId = el.dataset.thoughtId
+        if (!thoughtId) return
+        await copyAndScrollToThought(thoughtId)
       })
     })
   }
 
-  function highlightAnchor() {
-    const hash = window.location.hash.slice(1)
-    if (hash) {
-      const element = document.getElementById(hash)
-      if (element) {
-        element.classList.add('highlight-thought')
-        setTimeout(() => {
-          element.classList.remove('highlight-thought')
-        }, 2000)
-      }
-    }
+  function highlightElement(element: HTMLElement) {
+    element.classList.remove('highlight-thought')
+    element.getBoundingClientRect()
+    element.classList.add('highlight-thought')
+    setTimeout(() => {
+      element.classList.remove('highlight-thought')
+    }, 2000)
   }
 
-  function updateLikeButton(
-    btn: HTMLElement,
-    total: number,
-    userToday: number,
-  ) {
+  function highlightAnchor() {
+    const hash = window.location.hash.slice(1)
+    if (!hash) return
+
+    const element = document.getElementById(hash)
+    if (element) highlightElement(element)
+  }
+
+  function updateLikeButton(btn: HTMLElement, total: number, userToday: number) {
     const countEl = btn.querySelector('.thought-like-count') as HTMLElement
     const emptyHeart = btn.querySelector('.thought-heart-empty') as HTMLElement
-    const filledHeart = btn.querySelector(
-      '.thought-heart-filled',
-    ) as HTMLElement
+    const filledHeart = btn.querySelector('.thought-heart-filled') as HTMLElement
 
     if (!countEl || !emptyHeart || !filledHeart) return
 
@@ -386,9 +337,7 @@ thoughts.forEach((thought) => {
   }
 
   function animateHeart(btn: HTMLElement) {
-    const filledHeart = btn.querySelector(
-      '.thought-heart-filled',
-    ) as HTMLElement
+    const filledHeart = btn.querySelector('.thought-heart-filled') as HTMLElement
     if (!filledHeart) return
 
     const svg = filledHeart.querySelector('svg')
@@ -407,8 +356,8 @@ thoughts.forEach((thought) => {
     )
   }
 
-  async function loadThoughtLikes() {
-    const buttons = document.querySelectorAll(
+  async function loadThoughtLikes(root: ParentNode = document) {
+    const buttons = root.querySelectorAll(
       '.thought-like-btn',
     ) as NodeListOf<HTMLElement>
     if (buttons.length === 0) return
@@ -436,15 +385,18 @@ thoughts.forEach((thought) => {
     }
   }
 
-  let likeInProgress = new Set<string>()
+  const likeInProgress = new Set<string>()
 
-  function setupLikeButtons() {
-    document.querySelectorAll('.thought-like-btn').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
+  function setupLikeButtons(root: ParentNode = document) {
+    root.querySelectorAll('.thought-like-btn').forEach((btn) => {
+      const button = btn as HTMLElement
+      if (button.dataset.likeBound === 'true') return
+      button.dataset.likeBound = 'true'
+
+      button.addEventListener('click', async (e) => {
         e.preventDefault()
         e.stopPropagation()
 
-        const button = btn as HTMLElement
         const thoughtId = button.dataset.thoughtId
         if (!thoughtId) return
         if (likeInProgress.has(thoughtId)) return
@@ -456,9 +408,7 @@ thoughts.forEach((thought) => {
           return
         }
 
-        const countEl = button.querySelector(
-          '.thought-like-count',
-        ) as HTMLElement
+        const countEl = button.querySelector('.thought-like-count') as HTMLElement
         const currentCount = parseInt(countEl?.textContent || '0') || 0
         updateLikeButton(button, currentCount + 1, 1)
         animateHeart(button)
@@ -492,12 +442,186 @@ thoughts.forEach((thought) => {
     })
   }
 
-  function init() {
+  function prepareThoughtMedia(root: ParentNode = document) {
+    root.querySelectorAll<HTMLImageElement>('.thought-content img').forEach((img) => {
+      img.loading = 'lazy'
+      img.decoding = 'async'
+      if (!img.sizes) img.sizes = '(max-width: 640px) 92vw, 720px'
+    })
+  }
+
+  function syncLoadMoreButton() {
+    const page = document.querySelector('.thought-page') as HTMLElement | null
+    const button = document.querySelector('[data-load-more]') as HTMLButtonElement | null
+    const text = document.querySelector('[data-load-text]') as HTMLElement | null
+    if (!page || !button || !text) return
+
+    const loadedPage = Number(page.dataset.loadedPage || '1')
+    const totalPages = Number(page.dataset.totalPages || '1')
+    const pageSize = Number(page.dataset.pageSize || '6')
+    const totalItems = Number(page.dataset.totalItems || '0')
+    const loadedItems = document.querySelectorAll('[data-thought-item]').length
+    const remaining = Math.max(0, (totalItems || loadedItems) - loadedItems)
+
+    if (loadedPage >= totalPages || remaining === 0) {
+      button.hidden = true
+      return
+    }
+
+    button.hidden = false
+    button.dataset.nextPage = String(loadedPage + 1)
+    text.textContent = `继续加载 ${Math.min(pageSize, remaining)} 条`
+  }
+
+  function initInsertedThoughts(root: ParentNode = document) {
     setupTimeAgo()
-    setupAnchorLinks()
+    setupAnchorLinks(root)
+    setupLikeButtons(root)
+    prepareThoughtMedia(root)
+    loadThoughtLikes(root)
+  }
+
+  async function loadPage(pageNumber: number) {
+    const page = document.querySelector('.thought-page') as HTMLElement | null
+    const feed = document.querySelector('[data-thought-feed]')
+    if (!page || !feed) return
+
+    const loadedPage = Number(page.dataset.loadedPage || '1')
+    const totalPages = Number(page.dataset.totalPages || '1')
+    if (pageNumber <= loadedPage || pageNumber > totalPages) return
+
+    if (loadingPage) {
+      await loadingPage
+      return loadPage(pageNumber)
+    }
+
+    const button = document.querySelector('[data-load-more]') as HTMLButtonElement | null
+    if (button) {
+      button.disabled = true
+      button.classList.add('is-loading')
+    }
+
+    loadingPage = (async () => {
+      for (let pageIndex = loadedPage + 1; pageIndex <= pageNumber; pageIndex++) {
+        const response = await fetch(`/thoughts/chunks/${pageIndex}/`)
+        if (!response.ok) throw new Error(`Failed to load thoughts chunk ${pageIndex}`)
+
+        const html = await response.text()
+        const template = document.createElement('template')
+        template.innerHTML = html.trim()
+        // Chunk routes may include wrapper nodes; only append thought cards.
+        const items = Array.from(
+          template.content.querySelectorAll('[data-thought-item]'),
+        )
+        const fragment = document.createDocumentFragment()
+        items.forEach((item) => fragment.appendChild(item))
+        initInsertedThoughts(fragment)
+        feed.appendChild(fragment)
+        page.dataset.loadedPage = String(pageIndex)
+      }
+    })()
+
+    try {
+      await loadingPage
+    } catch {
+      showToast('加载失败，请稍后再试')
+    } finally {
+      loadingPage = null
+      if (button) {
+        button.disabled = false
+        button.classList.remove('is-loading')
+      }
+      syncLoadMoreButton()
+    }
+  }
+
+  function setupLoadMore() {
+    const button = document.querySelector('[data-load-more]') as HTMLButtonElement | null
+    if (!button || button.dataset.loadBound === 'true') return
+    button.dataset.loadBound = 'true'
+
+    button.addEventListener('click', async () => {
+      const nextPage = Number(button.dataset.nextPage || '2')
+      await loadPage(nextPage)
+    })
+  }
+
+  function closeMobileToc() {
+    const panel = document.querySelector('[data-mobile-toc]') as HTMLElement | null
+    const mask = document.querySelector('[data-mobile-toc-mask]') as HTMLElement | null
+    if (!panel || !mask) return
+
+    panel.classList.remove('is-open')
+    panel.setAttribute('aria-hidden', 'true')
+    mask.hidden = true
+    document.documentElement.classList.remove('thought-toc-lock')
+  }
+
+  function setupMobileToc() {
+    const open = document.querySelector('[data-mobile-toc-open]') as HTMLButtonElement | null
+    const close = document.querySelector('[data-mobile-toc-close]') as HTMLButtonElement | null
+    const panel = document.querySelector('[data-mobile-toc]') as HTMLElement | null
+    const mask = document.querySelector('[data-mobile-toc-mask]') as HTMLElement | null
+    if (!open || !close || !panel || !mask || open.dataset.tocBound === 'true') return
+    open.dataset.tocBound = 'true'
+
+    open.addEventListener('click', () => {
+      mask.hidden = false
+      panel.classList.add('is-open')
+      panel.setAttribute('aria-hidden', 'false')
+      document.documentElement.classList.add('thought-toc-lock')
+    })
+
+    close.addEventListener('click', closeMobileToc)
+    mask.addEventListener('click', closeMobileToc)
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeMobileToc()
+    })
+  }
+
+  function setupTocLinks() {
+    document.querySelectorAll('[data-toc-link]').forEach((link) => {
+      const el = link as HTMLElement
+      if (el.dataset.tocBound === 'true') return
+      el.dataset.tocBound = 'true'
+
+      el.addEventListener('click', async (event) => {
+        event.preventDefault()
+        const thoughtId = el.dataset.thoughtId
+        const page = Number(el.dataset.page || '1')
+        if (!thoughtId) return
+
+        closeMobileToc()
+        await loadPage(page)
+        history.pushState(null, '', `#${thoughtId}`)
+        const target = document.getElementById(thoughtId)
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          highlightElement(target)
+        }
+      })
+    })
+  }
+
+  async function loadInitialHash() {
+    const thoughtId = window.location.hash.slice(1)
+    if (!thoughtId) return
+
+    const tocLink = document.querySelector(
+      `[data-toc-link][data-thought-id="${CSS.escape(thoughtId)}"]`,
+    ) as HTMLElement | null
+    const page = Number(tocLink?.dataset.page || '1')
+    await loadPage(page)
     highlightAnchor()
-    setupLikeButtons()
-    loadThoughtLikes()
+  }
+
+  function init() {
+    initInsertedThoughts()
+    setupLoadMore()
+    setupMobileToc()
+    setupTocLinks()
+    syncLoadMoreButton()
+    loadInitialHash()
   }
 
   document.addEventListener('DOMContentLoaded', init)
@@ -508,7 +632,58 @@ thoughts.forEach((thought) => {
   }
 </script>
 
-<style>
+<style is:global>
+  .thought-hero {
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.14);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 58%, transparent);
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 16px 42px rgb(var(--kawaii-primary-rgb) / 0.08);
+    backdrop-filter: blur(12px) saturate(1.06);
+    -webkit-backdrop-filter: blur(12px) saturate(1.06);
+  }
+
+  .thought-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .thought-rss-link {
+    border-radius: 999px;
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.16);
+    background: rgb(var(--kawaii-primary-rgb) / 0.08);
+    padding: 0.24rem 0.65rem;
+    color: var(--kawaii-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .thought-rss-link:hover {
+    background: rgb(var(--kawaii-primary-rgb) / 0.14);
+    transform: translateY(-1px);
+  }
+
+  .thought-description {
+    margin-top: 0.85rem;
+    max-width: 42rem;
+    color: var(--kawaii-muted);
+    font-size: 0.92rem;
+    line-height: 1.9;
+  }
+
+  .thought-main {
+    position: relative;
+  }
+
+  .thought-toc {
+    display: none;
+  }
+
   .thought-feed {
     position: relative;
     display: flex;
@@ -540,11 +715,7 @@ thoughts.forEach((thought) => {
     position: relative;
     border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.16);
     border-radius: 1.1rem;
-    background: color-mix(
-      in srgb,
-      var(--kawaii-surface-soft) 54%,
-      transparent
-    );
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 54%, transparent);
     padding: 0.85rem 1rem 0.95rem;
     box-shadow: 0 10px 28px rgb(var(--kawaii-primary-rgb) / 0.07);
     backdrop-filter: blur(10px) saturate(1.06);
@@ -559,11 +730,7 @@ thoughts.forEach((thought) => {
   .thought-card:hover {
     transform: translateY(-1px);
     border-color: rgb(var(--kawaii-primary-rgb) / 0.28);
-    background: color-mix(
-      in srgb,
-      var(--kawaii-surface-soft) 68%,
-      transparent
-    );
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 68%, transparent);
     box-shadow: 0 14px 32px rgb(var(--kawaii-primary-rgb) / 0.11);
   }
 
@@ -628,13 +795,183 @@ thoughts.forEach((thought) => {
     box-shadow: 0 10px 26px rgb(var(--kawaii-primary-rgb) / 0.12);
   }
 
-  :global(html.dark) .thought-card {
+  .thought-load-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.35rem 0 0.25rem;
+  }
+
+  .thought-load-more {
+    min-width: 11rem;
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.22);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 78%, transparent);
+    padding: 0.62rem 1.2rem;
+    color: var(--kawaii-primary);
+    font-size: 0.86rem;
+    font-weight: 800;
+    box-shadow: 0 12px 26px rgb(var(--kawaii-primary-rgb) / 0.1);
+    transition:
+      transform 0.2s ease,
+      opacity 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .thought-load-more:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgb(var(--kawaii-primary-rgb) / 0.14);
+  }
+
+  .thought-load-more:disabled {
+    cursor: wait;
+    opacity: 0.58;
+    transform: none;
+  }
+
+  .thought-load-more.is-loading [data-load-text]::after {
+    content: '...';
+  }
+
+  .thought-load-hint,
+  .thought-empty {
+    color: var(--kawaii-muted-soft);
+    font-size: 0.78rem;
+    line-height: 1.7;
+  }
+
+  .thought-empty {
+    border: 1px dashed rgb(var(--kawaii-primary-rgb) / 0.2);
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .thought-mobile-toc-button {
+    position: fixed;
+    right: 1rem;
+    bottom: 1.5rem;
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.2);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 82%, transparent);
+    padding: 0.72rem 0.9rem;
+    color: var(--kawaii-primary);
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 18px 38px rgb(var(--kawaii-primary-rgb) / 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .thought-mobile-toc-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 48;
+    background: rgba(30, 20, 24, 0.28);
+  }
+
+  .thought-mobile-toc {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 49;
+    height: min(68vh, 34rem);
+    transform: translateY(105%);
+    border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.18);
+    border-bottom: 0;
+    border-radius: 1.35rem 1.35rem 0 0;
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 92%, transparent);
+    box-shadow: 0 -18px 44px rgba(60, 35, 45, 0.16);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+    transition: transform 0.26s ease;
+  }
+
+  .thought-mobile-toc.is-open {
+    transform: translateY(0);
+  }
+
+  .thought-mobile-toc-handle {
+    margin: 0.65rem auto 0;
+    width: 3rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: rgb(var(--kawaii-primary-rgb) / 0.18);
+  }
+
+  .thought-mobile-toc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgb(var(--kawaii-primary-rgb) / 0.12);
+    padding: 0.9rem 1.1rem;
+    color: var(--kawaii-text);
+    font-size: 0.96rem;
+    font-weight: 800;
+  }
+
+  .thought-mobile-toc-head button {
+    color: var(--kawaii-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .thought-mobile-toc-list {
+    height: calc(100% - 5.4rem);
+    overflow-y: auto;
+    padding: 0.7rem 1rem 1.5rem;
+  }
+
+  .thought-mobile-toc-link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: center;
+    border-radius: 0.8rem;
+    padding: 0.55rem 0.65rem;
+    color: var(--kawaii-muted);
+    font-size: 0.84rem;
+    text-decoration: none;
+  }
+
+  .thought-mobile-toc-link:active {
+    background: rgb(var(--kawaii-primary-rgb) / 0.09);
+  }
+
+  .thought-toc-number {
+    color: var(--kawaii-primary);
+    font-weight: 800;
+  }
+
+  .thought-toc-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .thought-toc-date {
+    color: var(--kawaii-muted-soft);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+  }
+
+  html.thought-toc-lock {
+    overflow: hidden;
+  }
+
+  html.dark .thought-card,
+  html.dark .thought-hero,
+  html.dark .thought-load-more,
+  html.dark .thought-mobile-toc,
+  html.dark .thought-mobile-toc-button {
     border-color: rgb(var(--kawaii-primary-rgb) / 0.2);
-    background: color-mix(
-      in srgb,
-      var(--kawaii-surface-soft) 72%,
-      transparent
-    );
+    background: color-mix(in srgb, var(--kawaii-surface-soft) 78%, transparent);
     box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
   }
 
@@ -652,7 +989,87 @@ thoughts.forEach((thought) => {
     }
   }
 
+  @media (min-width: 1280px) {
+    .thought-toc {
+      position: fixed;
+      top: 50%;
+      right: max(1.5rem, calc((100vw - 72rem) / 2));
+      z-index: 10;
+      display: block;
+      width: 15rem;
+      max-height: 70vh;
+      transform: translateY(-50%);
+      overflow-y: auto;
+      border: 1px solid rgb(var(--kawaii-primary-rgb) / 0.12);
+      border-radius: 1rem;
+      background: color-mix(in srgb, var(--kawaii-surface-soft) 58%, transparent);
+      padding: 0.85rem;
+      opacity: 0.52;
+      box-shadow: 0 16px 34px rgb(var(--kawaii-primary-rgb) / 0.08);
+      backdrop-filter: blur(12px) saturate(1.04);
+      -webkit-backdrop-filter: blur(12px) saturate(1.04);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .thought-toc:hover,
+    .thought-toc:focus-within {
+      opacity: 1;
+      transform: translateY(-50%) translateX(-2px);
+    }
+
+    .thought-toc-title {
+      margin-bottom: 0.65rem;
+      color: var(--kawaii-muted-soft);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .thought-toc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+    }
+
+    .thought-toc-link {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 0.45rem;
+      align-items: center;
+      border-radius: 0.65rem;
+      padding: 0.38rem 0.45rem;
+      color: var(--kawaii-muted);
+      font-size: 0.78rem;
+      text-decoration: none;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease;
+    }
+
+    .thought-toc-link:hover {
+      background: rgb(var(--kawaii-primary-rgb) / 0.08);
+      color: var(--kawaii-text);
+    }
+
+    .thought-mobile-toc-button,
+    .thought-mobile-toc,
+    .thought-mobile-toc-mask {
+      display: none;
+    }
+  }
+
   @media (max-width: 640px) {
+    .thought-hero {
+      border-radius: 1.05rem;
+      padding: 1rem;
+    }
+
+    .thought-description {
+      font-size: 0.86rem;
+    }
+
     .thought-actions {
       width: 100%;
       margin-left: 0;
@@ -671,20 +1088,20 @@ thoughts.forEach((thought) => {
 
   @keyframes highlightPulse {
     0% {
-      background-color: rgba(168, 162, 158, 0.2);
+      background-color: rgba(244, 114, 182, 0.18);
     }
     100% {
       background-color: transparent;
     }
   }
 
-  :global(.dark) .highlight-thought {
+  .dark .highlight-thought {
     animation: highlightPulseDark 2s ease-out;
   }
 
   @keyframes highlightPulseDark {
     0% {
-      background-color: rgba(120, 113, 108, 0.2);
+      background-color: rgba(244, 114, 182, 0.16);
     }
     100% {
       background-color: transparent;

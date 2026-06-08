@@ -1,0 +1,30 @@
+---
+import ThoughtItem from '@components/ThoughtItem.astro'
+import {
+  getSortedThoughts,
+  getThoughtChunks,
+  renderThoughtEntries,
+} from '@lib/thoughts'
+
+export async function getStaticPaths() {
+  const collection = await getSortedThoughts()
+  const chunks = getThoughtChunks(collection)
+
+  return chunks.slice(1).map((chunk, index) => ({
+    params: {
+      page: String(index + 2),
+    },
+    props: {
+      chunk,
+      collection,
+    },
+  }))
+}
+
+const { chunk, collection } = Astro.props
+const thoughts = await renderThoughtEntries(chunk, collection)
+
+Astro.response.headers.set('Content-Type', 'text/html; charset=utf-8')
+---
+
+{thoughts.map((entry) => <ThoughtItem entry={entry} />)}

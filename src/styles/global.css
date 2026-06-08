@@ -400,12 +400,11 @@ article h3:hover .heading-anchor,
 article h4:hover .heading-anchor,
 article h5:hover .heading-anchor,
 article h6:hover .heading-anchor {
-  @apply opacity-100;
+  @apply opacity-0;
 }
 
 article .heading-anchor::before {
-  content: '#';
-  @apply font-normal;
+  content: none;
 }
 
 /* 图片灯箱样式 */
@@ -1429,18 +1428,6 @@ article h2 {
   border-color: var(--kawaii-border) !important;
 }
 
-article h2::before {
-  content: '';
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-right: 0.45rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--kawaii-primary), var(--kawaii-accent));
-  vertical-align: 0.18em;
-  box-shadow: 0 0 0 4px rgb(var(--kawaii-primary-rgb) / 0.11);
-}
-
 article a,
 article a:visited,
 a {
@@ -1459,7 +1446,7 @@ article blockquote {
   color: var(--kawaii-muted) !important;
 }
 
-article :where(div[style*='display: flex'], div[style*='display:flex']) img {
+article :where(div[style*='display: flex'], div[style*='display:flex']) img:not([style]) {
   display: block;
   flex-shrink: 1;
   margin: 0;
@@ -1467,6 +1454,7 @@ article :where(div[style*='display: flex'], div[style*='display:flex']) img {
 
 article :where(div[style*='display: flex'], div[style*='display:flex']) img[style] {
   max-width: revert-layer;
+  margin: revert-layer;
 }
 
 article code:not(pre code) {

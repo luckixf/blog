@@ -1,0 +1,109 @@
+---
+import type { RenderedThought } from '@lib/thoughts'
+import { formatThoughtDate, getWeekday, timeAgo } from '@lib/thoughts'
+
+type Props = {
+  entry: RenderedThought
+}
+
+const { entry } = Astro.props
+const color = entry.color
+---
+
+<li
+  id={`${entry.thoughtId}`}
+  class={`thought-item animate scroll-mt-24 ${color.light} ${color.dark} group`}
+  data-thought-item
+  data-thought-id={entry.thoughtId}
+>
+  <div class="thought-card">
+    <div class="thought-meta">
+      <span class={`thought-pin ${color.bg}`} aria-hidden="true" />
+      <a
+        href={`#${entry.thoughtId}`}
+        class={`thought-anchor cursor-pointer ${color.text} font-semibold transition-opacity hover:opacity-70`}
+        data-thought-id={entry.thoughtId}
+        title="复制链接"
+      >
+        #{entry.thoughtId}
+      </a>
+      <span class="thought-separator">·</span>
+      <span>
+        发布于
+        <span class="time-ago" data-timestamp={entry.data.date.getTime()}>
+          {timeAgo(entry.data.date)}
+        </span>
+      </span>
+      <span class="thought-separator">·</span>
+      <span class="font-mono">{formatThoughtDate(entry.data.date)}</span>
+      <span class="hidden sm:inline">{getWeekday(entry.data.date)}</span>
+      <span class="thought-actions">
+        {
+          entry.data.tags && entry.data.tags.length > 0 && (
+            <span class="thought-tags-wrapper">
+              <span class="thought-separator">·</span>
+              <span>
+                {entry.data.tags.map((tag: string) => `#${tag}`).join(' ')}
+              </span>
+            </span>
+          )
+        }
+        <span class="thought-like-wrap relative">
+          <button
+            type="button"
+            class="thought-like-btn group/like flex items-center gap-1 rounded-full px-1.5 py-0.5 text-stone-400 transition-all duration-200 hover:text-rose-500 sm:px-2 sm:py-1 dark:text-stone-600 dark:hover:text-rose-400"
+            data-thought-id={entry.thoughtId}
+            data-liked="false"
+            aria-label={`为第 ${entry.thoughtId} 条碎碎念点赞`}
+          >
+            <span
+              class="thought-heart-empty"
+              style="display:inline-flex;align-items:center;justify-content:center;"
+            >
+              <svg
+                class="h-3.5 w-3.5 transition-colors duration-200 group-hover/like:text-rose-500"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
+              </svg>
+            </span>
+            <span
+              class="thought-heart-filled"
+              style="display:none;align-items:center;justify-content:center;"
+            >
+              <svg
+                class="h-3.5 w-3.5 text-rose-500 dark:text-rose-400"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="none"
+              >
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
+              </svg>
+            </span>
+            <span class="thought-like-count text-[11px] leading-none tabular-nums"></span>
+          </button>
+          <span
+            class="thought-bubble pointer-events-none absolute right-0 bottom-full mb-1.5 rounded-md px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap opacity-0"
+            aria-hidden="true"
+          ></span>
+        </span>
+      </span>
+    </div>
+    <div class="thought-content-wrap">
+      <article
+        class="thought-handwriting thought-content prose-p:my-3! text-sm! font-medium [&_img]:h-auto [&_img]:object-contain"
+      >
+        <entry.Content />
+      </article>
+    </div>
+  </div>
+</li>

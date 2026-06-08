@@ -33,6 +33,10 @@ export default defineConfig({
 		inlineStylesheets: "auto",
 	},
 
+	image: {
+		remotePatterns: [],
+	},
+
 	integrations: [
 		astroExpressiveCode({
 			themes: ["github-light"],
