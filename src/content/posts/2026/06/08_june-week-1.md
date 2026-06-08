@@ -12,7 +12,7 @@ draft: false
 
 在上周还学习了些基本的cass画法，完成了先前一直在做的测量实习作业。
 
-<img src="https://image.luckixf.top/2026/06/08/cass.png.webp" style="width: 45%; max-width: 220px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图1">
+<img src="https://image.luckixf.top/2026/06/08/cass.png.webp" style="max-width: 300px; height: auto;object-fit: contain; margin-left: 0 !important;" alt="图1">
 
 尝试先把.dwg的文件在cad导出为.wmf文件，再借助先前稀里糊涂让ai在电脑上安装的libreofficer软件导出为矢量图pdf。对于这个软件自己了解的很少，当时觉得可能方便ai调用处理文档就留了下来，或许此后可以抽空去学习一下。
 
