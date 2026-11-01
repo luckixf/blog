@@ -1,160 +1,138 @@
 ---
-import { type CollectionEntry, getCollection, render } from "astro:content";
-import Container from "@components/Container.astro";
-import Link from "@components/Link.astro";
-import { HOME, SITE } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
-import { formatDate, readingTime, timeAgo } from "@lib/utils";
-
-const posts = (await getCollection("posts"))
-	.filter((post: CollectionEntry<"posts">) => !post.data.draft)
-	.sort(
-		(a: CollectionEntry<"posts">, b: CollectionEntry<"posts">) =>
-			b.data.date.valueOf() - a.data.date.valueOf(),
-	);
-
-const thoughts = (await getCollection("thoughts"))
-	.filter((thought: CollectionEntry<"thoughts">) => !thought.data.draft)
-	.sort(
-		(a: CollectionEntry<"thoughts">, b: CollectionEntry<"thoughts">) =>
-			b.data.date.valueOf() - a.data.date.valueOf(),
-	);
+import { getCollection } from 'astro:content'
+import Container from '@components/Container.astro'
+import Icon from '@components/Icon.astro'
+import PostPreview from '@components/PostPreview.astro'
+import { HOME, SITE, SOCIALS } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
+import { formatYMD } from '@lib/utils'
+import { PROFILE } from '../site.config'
+import { excerpt, firstImage } from '@lib/excerpt'
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+const thoughts = (await getCollection('thoughts'))
+  .filter((thought) => !thought.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
-    <div class="space-y-10">
-      <!-- Hero -->
-      <section class="animate">
-        <div class="space-y-3 sm:space-y-4">
-          <h1
-            class="text-2xl font-bold text-stone-900 sm:text-3xl dark:text-stone-100"
-          >
-            {SITE.NAME}
-          </h1>
-          <p class="text-sm text-stone-600 sm:text-base dark:text-stone-400">
-            {SITE.DESCRIPTION}
-          </p>
-          <p class="text-sm text-stone-500 sm:text-base dark:text-stone-400">
-            自穹顶坠落，与尘土掩埋
-          </p>
+    <section class="profile-hero" aria-labelledby="profile-name">
+      <a href="/about" class="avatar-link" aria-label="了解 Luckixf">
+        <img
+          src={PROFILE.avatar}
+          alt={PROFILE.name}
+          width="112"
+          height="112"
+          class="profile-avatar"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </a>
+      <h1 id="profile-name">
+        {PROFILE.name}<span class="profile-period">.</span>
+      </h1>
+      <p class="profile-description">{SITE.DESCRIPTION}</p>
+      <div class="profile-links">
+        {
+          SOCIALS.map((social) => (
+            <a href={social.HREF} target="_blank" rel="noopener noreferrer">
+              <Icon name="github" size={16} />
+              {social.NAME}
+            </a>
+          ))
+        }
+        <span aria-hidden="true">/</span>
+        <a href={'mailto:' + SITE.EMAIL}><Icon name="mail" size={16} />Email</a>
+        <span aria-hidden="true">/</span>
+        <a href="/rss.xml"><Icon name="rss" size={16} />RSS</a>
+      </div>
+      <div class="profile-tags">
+        {PROFILE.tags.map((tag) => <span>{tag}</span>)}
+      </div>
+    </section>
+    <div class="home-sections">
+      <section class="home-section about-intro">
+        <div class="section-heading">
+          <h2>关于我<span>ABOUT</span></h2><a href="/about" class="text-link"
+            >认识一下<Icon name="arrow" size={16} /></a>
         </div>
+        <p>{PROFILE.bio}。在这里记录学习、生活，以及偶尔冒出来的想法。</p>
+        <p class="muted">{PROFILE.introduction}</p>
       </section>
-
-      <hr class="border-stone-200 dark:border-stone-800" />
-
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-y-2">
-          <h2 class="font-semibold text-stone-900 dark:text-stone-100">
-            最近文章
-          </h2>
-          <Link href="/posts"> 查看全部 →</Link>
+      <section class="home-section">
+        <div class="section-heading">
+          <h2>最近文章<span>WRITING</span></h2><a
+            href="/posts"
+            class="text-link"
+            >全部 {posts.length} 篇<Icon name="arrow" size={16} /></a>
         </div>
-        <ul class="flex flex-col space-y-6">
+        <ul class="post-list">
           {
-            posts.slice(0, SITE.NUM_POSTS_ON_HOMEPAGE).map((post) => (
-              <li>
-                <a
-                  href={`/${post.data.slug || post.id}`}
-                  class="group -mx-3 block space-y-1.5 rounded-lg p-3 transition-colors duration-200 hover:bg-stone-100/50 dark:hover:bg-stone-800/50"
-                >
-                  <div class="flex flex-wrap items-baseline justify-between gap-4">
-                    <h3 class="flex-1 font-semibold text-stone-800 transition-colors duration-300 group-hover:text-stone-950 dark:text-stone-200 dark:group-hover:text-stone-50">
-                      {post.data.title}
-                    </h3>
-                    <span class="font-mono text-xs whitespace-nowrap text-stone-400 dark:text-stone-500">
-                      {formatDate(post.data.date)} · {readingTime(post.body ?? "")}
-                    </span>
-                  </div>
-                  {post.data.description && (
-                    <p class="line-clamp-1 text-sm text-stone-500 dark:text-stone-400">
-                      {post.data.description}
-                    </p>
-                  )}
-                </a>
-              </li>
-            ))
+            posts
+              .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE)
+              .map((post) => <PostPreview post={post} />)
           }
         </ul>
       </section>
-
-      <hr class="border-stone-200 dark:border-stone-800" />
-
-      <!-- 最近碎碎念 -->
       {
         thoughts.length > 0 && (
-          <section class="animate space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-y-2">
-              <h2 class="font-semibold text-stone-900 dark:text-stone-100">
-                最近动态
-              </h2>
-              <Link href="/thoughts"> 查看全部 →</Link>
+          <section class="home-section">
+            <div class="section-heading">
+              <>
+                <h2>
+                  最近动态<span>MOMENTS</span>
+                </h2>
+                <a href="/thoughts" class="text-link">
+                  全部 {thoughts.length} 条<Icon name="arrow" size={16} />
+                </a>
+              </>
             </div>
-            <div class="space-y-4">
+            <ul class="home-thoughts">
               {thoughts
                 .slice(0, SITE.NUM_THOUGHTS_ON_HOMEPAGE)
-                .map(async (thought, index) => {
-                  const { Content } = await render(thought)
-                  const thoughtId = thoughts.length - index
-                  return (
-                    <a
-                      href={`/thoughts#${thoughtId}`}
-                      class="group -mx-3 block rounded-lg p-3 transition-colors duration-200 hover:bg-stone-100/50 dark:hover:bg-stone-800/50"
-                    >
-                      <div class="flex items-center gap-2 text-xs">
-                        <span class="rounded-full bg-gradient-to-r from-stone-200 to-stone-100 px-2 py-0.5 font-semibold text-stone-600 dark:from-stone-700 dark:to-stone-800 dark:text-stone-300">
-                          #{thoughtId}
+                .map((thought, index) => (
+                  <li>
+                    <a href={'/thoughts#' + (thoughts.length - index)}>
+                      <div class="moment-meta">
+                        <span class="moment-number">
+                          #{thoughts.length - index}
                         </span>
-                        <span
-                          class="time-ago text-stone-400 dark:text-stone-500"
-                          data-timestamp={thought.data.date.getTime()}
-                        >
-                          {timeAgo(thought.data.date)}
+                        <time datetime={thought.data.date.toISOString()}>
+                          {formatYMD(thought.data.date)}
+                        </time>
+                      </div>
+                      {firstImage(thought.body) && (
+                        <img
+                          class="home-thought-image"
+                          src={firstImage(thought.body)}
+                          alt={'碎碎念 #' + (thoughts.length - index) + ' 配图'}
+                          width="240"
+                          height="108"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      {excerpt(thought.body) && <p>{excerpt(thought.body)}</p>}
+                      {thought.data.tags && (
+                        <span class="moment-tags">
+                          {thought.data.tags.map((tag) => '#' + tag).join(' ')}
                         </span>
-                      </div>
-                      <div class="home-thought-content mt-2 line-clamp-2 text-sm text-stone-600 dark:text-stone-300 [&_p]:my-0">
-                        <Content />
-                      </div>
+                      )}
                     </a>
-                  )
-                })}
-            </div>
+                  </li>
+                ))}
+            </ul>
           </section>
         )
       }
     </div>
+    <div class="home-signoff">
+      <span aria-hidden="true">“</span><p>{PROFILE.motto}</p><div
+        class="signoff-line"
+      >
+      </div>
+    </div>
   </Container>
 </PageLayout>
-
-<script>
-  import { setupTimeAgo } from '@lib/timeago-client'
-
-  function init() {
-    setupTimeAgo()
-  }
-
-  document.addEventListener('DOMContentLoaded', init)
-  document.addEventListener('astro:after-swap', init)
-
-  if (document.readyState === 'complete') {
-    init()
-  }
-</script>
-
-<style>
-  /* 主页碎碎念图片样式 */
-  .home-thought-content :global(img) {
-    max-width: 6rem;
-    height: auto;
-    border-radius: 0.375rem;
-    margin: 0.5rem 0;
-  }
-
-  /* 主页碎碎念链接样式 */
-  .home-thought-content :global(a) {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-color: rgba(168, 162, 158, 0.5);
-    text-underline-offset: 2px;
-  }
-</style>

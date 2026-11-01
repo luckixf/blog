@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import Icon from '@components/Icon.astro'
+import { formatMD, formatYMD, readingTime } from '@lib/utils'
+type Props = { post: CollectionEntry<'posts'>; compact?: boolean }
+const { post, compact = false } = Astro.props
+---
+
+<li class="post-preview">
+  <a href={'/' + (post.data.slug || post.id)}>
+    <time datetime={post.data.date.toISOString()}
+      >{compact ? formatMD(post.data.date) : formatYMD(post.data.date)}</time
+    >
+    <div class="post-preview-body">
+      <h3>{post.data.title}</h3>
+      {!compact && post.data.description && <p>{post.data.description}</p>}
+    </div>
+    <span class="post-reading-time">{readingTime(post.body || '')}</span>
+    <Icon name="arrow" class="post-arrow" size={16} />
+  </a>
+</li>

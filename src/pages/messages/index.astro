@@ -1,13 +1,14 @@
 ---
-import Comments from "@components/Comments.astro";
-import Container from "@components/Container.astro";
-import { MESSAGES } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
+import Comments from '@components/Comments.astro'
+import Container from '@components/Container.astro'
+import { MESSAGES } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
 ---
 
 <PageLayout title={MESSAGES.TITLE} description={MESSAGES.DESCRIPTION}>
   <Container>
-    <div class="space-y-4">
+    <div class="page-heading">
+      <span class="eyebrow">LEAVE A NOTE</span>
       <h1
         class="animate text-3xl font-semibold text-stone-900 dark:text-stone-100"
       >

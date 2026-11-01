@@ -1,75 +1,82 @@
-import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
-import astroExpressiveCode from "astro-expressive-code";
-import { fileURLToPath } from "url";
-import rehypeHeadingLinks from "./src/lib/rehype/rehype-heading-links.mjs";
-import remarkGithubAlerts from "./src/lib/remark/github-alert.mjs";
-import remarkDemoteH1ToH2 from "./src/lib/remark/remark-demote-h1.mjs";
-import remarkExternalLinks from "./src/lib/remark/remark-external-links.mjs";
+import mdx from '@astrojs/mdx'
+import sitemap from '@astrojs/sitemap'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'astro/config'
+import astroExpressiveCode from 'astro-expressive-code'
+import { fileURLToPath } from 'url'
+import rehypeHeadingLinks from './src/lib/rehype/rehype-heading-links.mjs'
+import remarkGithubAlerts from './src/lib/remark/github-alert.mjs'
+import remarkDemoteH1ToH2 from './src/lib/remark/remark-demote-h1.mjs'
+import remarkExternalLinks from './src/lib/remark/remark-external-links.mjs'
 
 const viteEnvPath = fileURLToPath(
-	new URL("./node_modules/vite/dist/client/env.mjs", import.meta.url),
-);
+  new URL('./node_modules/vite/dist/client/env.mjs', import.meta.url),
+)
 
 function resolveViteEnv() {
-	return {
-		name: "resolve-vite-env",
-		enforce: "pre",
-		resolveId(id) {
-			if (id === "@vite/env") {
-				return viteEnvPath;
-			}
-		},
-	};
+  return {
+    name: 'resolve-vite-env',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === '@vite/env') {
+        return viteEnvPath
+      }
+    },
+  }
 }
 
 export default defineConfig({
-	site: "https://blog.luckixf.top/",
-	compressHTML: true,
+  site: 'https://blog.luckixf.top/',
+  compressHTML: true,
 
-	build: {
-		inlineStylesheets: "auto",
-	},
+  build: {
+    inlineStylesheets: 'auto',
+  },
 
-	image: {
-		remotePatterns: [],
-	},
+  image: {
+    remotePatterns: [],
+  },
 
-	integrations: [
-		astroExpressiveCode({
-			themes: ["github-light"],
-			frames: {
-				showCopyToClipboardButton: false,
-			},
-		}),
-		mdx(),
-		sitemap({
-			filter: (page) => !page.includes("/offline"),
-		}),
-	],
+  integrations: [
+    astroExpressiveCode({
+      themes: ['github-light', 'github-dark'],
+      useDarkModeMediaQuery: false,
+      themeCssSelector: (theme) =>
+        theme.type === 'dark' ? '.dark' : ':root:not(.dark)',
+      shiki: { langAlias: { test: 'text' } },
+      frames: {
+        showCopyToClipboardButton: true,
+      },
+    }),
+    mdx(),
+    sitemap({
+      filter: (page) => !page.includes('/offline'),
+    }),
+  ],
 
-	markdown: {
-		remarkPlugins: [
-			remarkGithubAlerts,
-			remarkDemoteH1ToH2,
-			[remarkExternalLinks, { allowHostnames: ["example.com"] }],
-		],
-		rehypePlugins: [rehypeHeadingLinks],
-	},
+  markdown: {
+    remarkPlugins: [
+      remarkGithubAlerts,
+      remarkDemoteH1ToH2,
+      [
+        remarkExternalLinks,
+        { allowHostnames: ['blog.luckixf.top', 'luckixf.top'] },
+      ],
+    ],
+    rehypePlugins: [rehypeHeadingLinks],
+  },
 
-	vite: {
-		server: {
-			watch: {
-				ignored: ["**/.vercel/**", "**/dist/**"],
-			},
-		},
-		resolve: {
-			alias: {
-				"@vite/env": viteEnvPath,
-			},
-		},
-		plugins: [resolveViteEnv(), tailwindcss()],
-	},
-});
+  vite: {
+    server: {
+      watch: {
+        ignored: ['**/.vercel/**', '**/dist/**'],
+      },
+    },
+    resolve: {
+      alias: {
+        '@vite/env': viteEnvPath,
+      },
+    },
+    plugins: [resolveViteEnv(), tailwindcss()],
+  },
+})

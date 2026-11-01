@@ -1,0 +1,290 @@
+---
+import Icon from '@components/Icon.astro'
+---
+
+<dialog id="search-modal" class="search-dialog" aria-labelledby="search-label">
+  <div class="search-input-row">
+    <Icon name="search" />
+    <label id="search-label" for="search-input" class="sr-only"
+      >搜索文章和碎碎念</label
+    >
+    <input
+      id="search-input"
+      type="search"
+      placeholder="搜索文章、碎碎念…"
+      autocomplete="off"
+    />
+    <button
+      type="button"
+      id="search-close"
+      class="icon-button"
+      aria-label="关闭搜索"><Icon name="close" size={18} /></button
+    >
+  </div>
+  <div id="search-results" class="search-results" aria-live="polite"></div>
+  <div class="search-footer">
+    <span>↑ ↓ 选择 · Enter 打开</span><span>Esc 关闭</span>
+  </div>
+</dialog>
+<script>
+  type SearchItem = {
+    title: string
+    description?: string
+    content?: string
+    tags?: string[]
+    url: string
+    type: 'post' | 'thought'
+  }
+  let data: SearchItem[] | undefined
+  let pending: Promise<void> | undefined
+  let cleanup: (() => void) | undefined
+  const HISTORY_KEY = 'search_history'
+  function historyItems(): string[] {
+    try {
+      const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
+      return Array.isArray(value)
+        ? value.filter((item) => typeof item === 'string').slice(0, 5)
+        : []
+    } catch {
+      return []
+    }
+  }
+  function remember(query: string) {
+    if (query.length < 2) return
+    try {
+      localStorage.setItem(
+        HISTORY_KEY,
+        JSON.stringify(
+          [query, ...historyItems().filter((item) => item !== query)].slice(
+            0,
+            5,
+          ),
+        ),
+      )
+    } catch {}
+  }
+  function highlight(element: HTMLElement, value: string, query: string) {
+    if (!query) {
+      element.textContent = value
+      return
+    }
+    let start = 0
+    const lower = value.toLowerCase()
+    const needle = query.toLowerCase()
+    let index = lower.indexOf(needle)
+    while (index !== -1) {
+      element.append(document.createTextNode(value.slice(start, index)))
+      const mark = document.createElement('mark')
+      mark.textContent = value.slice(index, index + query.length)
+      element.append(mark)
+      start = index + query.length
+      index = lower.indexOf(needle, start)
+    }
+    element.append(document.createTextNode(value.slice(start)))
+  }
+  function setupSearch() {
+    cleanup?.()
+    const modal = document.getElementById(
+      'search-modal',
+    ) as HTMLDialogElement | null
+    const input = document.getElementById(
+      'search-input',
+    ) as HTMLInputElement | null
+    const results = document.getElementById('search-results')
+    const toggle = document.getElementById('search-toggle')
+    if (!modal || !input || !results || !toggle) return
+    const controller = new AbortController()
+    const options = { signal: controller.signal }
+    let selected = -1
+    let failed = false
+    function status(message: string) {
+      const text = document.createElement('p')
+      text.className = 'search-status'
+      text.textContent = message
+      results!.replaceChildren(text)
+    }
+    function render() {
+      selected = -1
+      const query = input!.value.trim()
+      results!.replaceChildren()
+      if (!data) {
+        status(
+          failed ? '搜索暂时无法加载，请关闭后重试。' : '正在加载搜索索引…',
+        )
+        return
+      }
+      if (!query) {
+        const items = historyItems()
+        status(
+          items.length ? '最近搜索' : '输入关键词，找回一篇文章或一个瞬间。',
+        )
+        if (items.length) {
+          const wrap = document.createElement('div')
+          wrap.className = 'search-history'
+          items.forEach((item) => {
+            const button = document.createElement('button')
+            button.type = 'button'
+            button.textContent = item
+            button.addEventListener('click', () => {
+              input!.value = item
+              render()
+              input!.focus()
+            })
+            wrap.append(button)
+          })
+          const clear = document.createElement('button')
+          clear.type = 'button'
+          clear.textContent = '清除历史'
+          clear.addEventListener('click', () => {
+            try {
+              localStorage.removeItem(HISTORY_KEY)
+            } catch {}
+            render()
+          })
+          wrap.append(clear)
+          results!.append(wrap)
+        }
+        return
+      }
+      const needle = query.toLowerCase()
+      const found = data
+        .map((item) => ({
+          item,
+          score:
+            (item.title.toLowerCase().includes(needle) ? 10 : 0) +
+            (item.description?.toLowerCase().includes(needle) ? 5 : 0) +
+            (item.content?.toLowerCase().includes(needle) ? 3 : 0) +
+            (item.tags?.some((tag) => tag.toLowerCase().includes(needle))
+              ? 4
+              : 0),
+        }))
+        .filter((result) => result.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15)
+      if (!found.length) {
+        status('没有找到“' + query + '”的相关内容。')
+        return
+      }
+      for (const { item } of found) {
+        const link = document.createElement('a')
+        link.className = 'search-result-item'
+        link.href = item.url
+        const type = document.createElement('span')
+        type.className = 'search-type'
+        type.textContent = item.type === 'post' ? '文章' : '碎碎念'
+        const title = document.createElement('span')
+        title.className = 'search-result-title'
+        highlight(title, item.title, query)
+        link.append(type, title)
+        if (item.description) {
+          const description = document.createElement('p')
+          highlight(description, item.description, query)
+          link.append(description)
+        }
+        link.addEventListener('click', () => {
+          remember(query)
+          modal!.close()
+        })
+        results!.append(link)
+      }
+    }
+    async function open() {
+      if (!modal!.open) modal!.showModal()
+      document.documentElement.classList.add('search-open')
+      input!.focus()
+      failed = false
+      render()
+      if (!data) {
+        pending ??= fetch('/api/search.json')
+          .then((response) => {
+            if (!response.ok) throw new Error('Search unavailable')
+            return response.json()
+          })
+          .then((items) => {
+            if (!Array.isArray(items)) throw new Error('Invalid search index')
+            data = items
+          })
+          .finally(() => {
+            pending = undefined
+          })
+        try {
+          await pending
+        } catch {
+          failed = true
+        }
+        if (!controller.signal.aborted) render()
+      }
+    }
+    toggle.addEventListener('click', open, options)
+    document
+      .getElementById('search-close')
+      ?.addEventListener('click', () => modal.close(), options)
+    modal.addEventListener(
+      'click',
+      (event) => {
+        if (event.target === modal) modal.close()
+      },
+      options,
+    )
+    modal.addEventListener(
+      'close',
+      () => {
+        document.documentElement.classList.remove('search-open')
+        input.value = ''
+        selected = -1
+      },
+      options,
+    )
+    input.addEventListener('input', render, options)
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (
+          (event.ctrlKey || event.metaKey) &&
+          event.key.toLowerCase() === 'k'
+        ) {
+          event.preventDefault()
+          if (modal.open) modal.close()
+          else void open()
+        }
+        if (!modal.open) return
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          modal.close()
+          return
+        }
+        const items = [
+          ...results.querySelectorAll<HTMLAnchorElement>('.search-result-item'),
+        ]
+        if (
+          (event.key === 'ArrowDown' || event.key === 'ArrowUp') &&
+          items.length
+        ) {
+          event.preventDefault()
+          selected =
+            (selected + (event.key === 'ArrowDown' ? 1 : -1) + items.length) %
+            items.length
+          items.forEach((item, index) =>
+            item.classList.toggle('is-selected', index === selected),
+          )
+          items[selected].scrollIntoView({ block: 'nearest' })
+        } else if (
+          event.key === 'Enter' &&
+          selected >= 0 &&
+          document.activeElement === input
+        ) {
+          event.preventDefault()
+          items[selected]?.click()
+        }
+      },
+      options,
+    )
+    cleanup = () => {
+      modal.close()
+      document.documentElement.classList.remove('search-open')
+      controller.abort()
+    }
+  }
+  document.addEventListener('astro:page-load', setupSearch)
+  document.addEventListener('astro:before-swap', () => cleanup?.())
+</script>

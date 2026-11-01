@@ -214,7 +214,7 @@
         return
       }
 
-      const container = article.closest('.mx-auto')
+      const container = article.closest('.content-container')
       if (!container) return
 
       const containerRect = container.getBoundingClientRect()
@@ -560,7 +560,7 @@
     max-height: calc(100vh - 10rem);
     overflow-y: auto;
     overflow-x: hidden;
-    opacity: 0.45;
+    opacity: 1;
     transition: opacity 0.3s ease;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -571,7 +571,7 @@
   }
 
   .toc-sidebar.toc-visible .toc-nav {
-    opacity: 0.45;
+    opacity: 1;
   }
 
   .toc-sidebar.toc-hovered .toc-nav {
@@ -596,12 +596,19 @@
     color: rgb(168 162 158);
   }
 
-  .toc-link {
+  .toc-nav :global(.toc-link) {
     position: relative;
+    color: var(--muted);
   }
 
-  .toc-link.toc-active {
-    font-weight: 500;
+  .toc-nav :global(.toc-link.toc-active) {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .toc-title {
+    opacity: 1;
+    color: var(--subtle);
   }
 
   .toc-mobile-btn {

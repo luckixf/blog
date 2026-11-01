@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content'
 import type { APIRoute } from 'astro'
+import { excerpt } from '@lib/excerpt'
 
 export const prerender = true
 
@@ -29,10 +30,7 @@ export const GET: APIRoute = async () => {
       const thoughtId = thoughts.length - index
       return {
         title: `碎碎念 #${thoughtId}`,
-        description: (thought.body ?? '')
-          .slice(0, 100)
-          .replace(/[#*`\n]/g, ' ')
-          .trim(),
+        description: excerpt(thought.body).slice(0, 100),
         url: `/thoughts#${thoughtId}`,
         type: 'thought' as const,
         date: thought.data.date.toLocaleDateString('zh-CN', {

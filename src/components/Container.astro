@@ -1,7 +1,6 @@
 ---
-const { class: customClass } = Astro.props
+type Props = { class?: string }
+const { class: className } = Astro.props
 ---
 
-<div class={`mx-auto max-w-3xl px-5 ${customClass || 'sm:px-8'}`}>
-  <slot />
-</div>
+<div class:list={['content-container', className]}><slot /></div>

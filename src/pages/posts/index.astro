@@ -1,85 +1,52 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content'
 import Container from '@components/Container.astro'
+import PostPreview from '@components/PostPreview.astro'
 import { BLOG } from '@consts'
 import PageLayout from '@layouts/PageLayout.astro'
-import { formatMD, readingTime } from '@lib/utils'
-
 const data = (await getCollection('posts'))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-
-type Acc = {
-  [year: string]: CollectionEntry<'posts'>[]
-}
-
-const posts = data.reduce((acc: Acc, post) => {
-  const year = post.data.date.getFullYear().toString()
-  if (!acc[year]) {
-    acc[year] = []
-  }
-  acc[year].push(post)
-  return acc
-}, {})
-
-const years = Object.keys(posts).sort((a, b) => parseInt(b) - parseInt(a))
+const posts = data.reduce(
+  (acc: Record<string, CollectionEntry<'posts'>[]>, post) => {
+    const year = new Intl.DateTimeFormat('en', {
+      year: 'numeric',
+      timeZone: 'Asia/Shanghai',
+    }).format(post.data.date)
+    ;(acc[year] ??= []).push(post)
+    return acc
+  },
+  {},
+)
+const years = Object.keys(posts).sort((a, b) => Number(b) - Number(a))
 ---
 
 <PageLayout title={BLOG.TITLE} description={BLOG.DESCRIPTION}>
   <Container>
-    <div class="space-y-10">
-      <h1
-        class="animate mb-4 text-3xl font-semibold text-stone-900 dark:text-stone-100"
-      >
-        文章
-      </h1>
-      <p class="animate text-stone-600 dark:text-stone-400">
-        {`共 ${data.length} 篇文章，按年份分组展示。`}
+    <div class="page-heading">
+      <span class="eyebrow">THE ARCHIVE</span><h1>文章</h1><p>
+        记录我的思考和学习。<span class="heading-count"
+          >共 {data.length} 篇文章</span>
       </p>
-      <div class="space-y-10">
-        {
-          years.map((year) => {
-            return (
-              <section class="animate space-y-4">
-                <div class="mb-3 flex items-center gap-3 sm:mb-4 sm:gap-4">
-                  <h2 class="text-xl font-bold text-stone-900 sm:text-2xl dark:text-stone-100">
-                    {year}
-                  </h2>
-                  <span class="text-xs text-stone-500 sm:text-sm dark:text-stone-400">
-                    {posts[year].length} 篇
-                  </span>
-                </div>
-                <ul class="space-y-2">
-                  {posts[year].map((post) => (
-                    <li class="min-w-0">
-                      <a
-                        href={`/${post.data.slug || post.id}`}
-                        class="flex flex-col gap-2 py-2.5 transition-colors duration-200 sm:flex-row sm:items-baseline sm:gap-4"
-                      >
-                        <span class="flex items-center gap-2 font-mono text-xs text-stone-500 sm:text-sm dark:text-stone-500">
-                          <span>{formatMD(post.data.date)}</span>
-                          <span class="text-stone-400 sm:hidden dark:text-stone-600">
-                            •
-                          </span>
-                          <span class="sm:hidden">
-                            {readingTime(post.body ?? "")}
-                          </span>
-                        </span>
-                        <span class="flex-1 font-medium text-stone-800 transition-colors duration-200 dark:text-stone-200">
-                          {post.data.title}
-                        </span>
-                        <span class="hidden text-sm text-stone-500 sm:inline dark:text-stone-500">
-                          {readingTime(post.body ?? "")}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )
-          })
-        }
-      </div>
+    </div>
+    <div class="archive">
+      {
+        years.map((year) => (
+          <section class="archive-year">
+            <div class="archive-year-heading">
+              <>
+                <h2>{year}</h2>
+                <span>{posts[year].length} 篇</span>
+              </>
+            </div>
+            <ul class="post-list">
+              {posts[year].map((post) => (
+                <PostPreview post={post} compact />
+              ))}
+            </ul>
+          </section>
+        ))
+      }
     </div>
   </Container>
 </PageLayout>

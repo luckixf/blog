@@ -1,3 +1,11 @@
+# Luckixf 的博客
+
+页面已按 Astro Theme Pure 的视觉方向重构，保留原有文章、碎碎念、个人信息和 API。详细说明见 [Pure 风格重构说明](./docs/pure-redesign.md)。
+
+常用命令：`bun dev`、`bun run build`、`bun run verify:content`。
+
+---
+
 # Astro Doge
 
 一个静态优先、但可按需打开动态能力的 Astro 6 博客模板。

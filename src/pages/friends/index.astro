@@ -1,44 +1,45 @@
 ---
-import Container from "@components/Container.astro";
-import Link from "@components/Link.astro";
-import { SITE } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
+import Container from '@components/Container.astro'
+import Link from '@components/Link.astro'
+import { SITE } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
 
 const FRIENDS_META = {
-	TITLE: "友链",
-	DESCRIPTION: "我的朋友们",
-};
+  TITLE: '友链',
+  DESCRIPTION: '我的朋友们',
+}
 
 const FRIENDS = [
-	{
-		name: "Astro",
-		href: "https://astro.build",
-		desc: "The web framework for content-driven websites.",
-		avatar: "https://astro.build/favicon.svg",
-		rss: "",
-	},
   {
-    name: "Dogxi 的狗窝",
-    href: "https://blog.dogxi.me",
-    desc: "Dogxi 的个人博客，因为热爱所以热爱",
-    avatar: "https://blog.dogxi.me/avatar.png",
-    rss: "https://blog.dogxi.me/rss.xml",
+    name: 'Astro',
+    href: 'https://astro.build',
+    desc: 'The web framework for content-driven websites.',
+    avatar: 'https://astro.build/favicon.svg',
+    rss: '',
   },
-];
+  {
+    name: 'Dogxi 的狗窝',
+    href: 'https://blog.dogxi.me',
+    desc: 'Dogxi 的个人博客，因为热爱所以热爱',
+    avatar: 'https://blog.dogxi.me/avatar.png',
+    rss: 'https://blog.dogxi.me/rss.xml',
+  },
+]
 
 // 我的博客信息（用于友链交换）
 const MY_SITE = {
-	name: SITE.NAME,
-	url: "https://blog.luckixf.top",
-	desc: SITE.DESCRIPTION,
-	avatar: "https://blog.luckixf.top/avatar.png",
-	rss: "https://blog.luckixf.top/rss.xml",
-};
+  name: SITE.NAME,
+  url: 'https://blog.luckixf.top',
+  desc: SITE.DESCRIPTION,
+  avatar: 'https://blog.luckixf.top/avatar.png',
+  rss: 'https://blog.luckixf.top/rss.xml',
+}
 ---
 
 <PageLayout title={FRIENDS_META.TITLE} description={FRIENDS_META.DESCRIPTION}>
   <Container>
-    <div class="space-y-4">
+    <div class="page-heading">
+      <span class="eyebrow">FRIENDS & CONNECTIONS</span>
       <h1
         class="animate text-3xl font-semibold text-stone-900 dark:text-stone-100"
       >
@@ -51,10 +52,10 @@ const MY_SITE = {
     <div class="space-y-10">
       <!-- 友链列表 -->
       <section class="animate">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {
             FRIENDS.map((friend) => (
-              <li class="group relative flex items-center overflow-hidden rounded-xl border border-stone-200 bg-stone-50/70 p-3 transition-all duration-300 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900/70 dark:hover:border-stone-700 dark:hover:bg-stone-800">
+              <li class="friend-card group relative flex items-center overflow-hidden border border-stone-200 transition-colors hover:border-stone-400 dark:border-stone-800">
                 <div class="mr-3 ml-1 h-10 w-10 shrink-0">
                   <img
                     src={friend.avatar}
@@ -84,7 +85,7 @@ const MY_SITE = {
               </li>
             ))
           }
-        </div>
+        </ul>
       </section>
 
       <!-- 申请友链 (折叠) -->
@@ -229,19 +230,19 @@ RSS：${MY_SITE.rss}`}</code></pre>
       </section>
     </div>
   </Container>
-</PageLayout>
 
-<!-- Toast -->
-<div
-  id="copy-toast"
-  class="pointer-events-none fixed bottom-8 left-1/2 z-50 -translate-x-1/2 transform opacity-0 transition-all duration-300"
->
+  <!-- Toast -->
   <div
-    class="rounded-lg bg-stone-800 px-4 py-2 text-sm text-white shadow-lg dark:bg-stone-200 dark:text-stone-800"
+    id="copy-toast"
+    class="pointer-events-none fixed bottom-8 left-1/2 z-50 -translate-x-1/2 transform opacity-0 transition-all duration-300"
   >
-    ✓ 已复制到剪贴板
+    <div
+      class="rounded-lg bg-stone-800 px-4 py-2 text-sm text-white shadow-lg dark:bg-stone-200 dark:text-stone-800"
+    >
+      ✓ 已复制到剪贴板
+    </div>
   </div>
-</div>
+</PageLayout>
 
 <script>
   function setupCopy() {
@@ -270,34 +271,3 @@ RSS：${MY_SITE.rss}`}</code></pre>
   setupCopy()
   document.addEventListener('astro:after-swap', setupCopy)
 </script>
-
-<style>
-  .friend-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      transparent 0%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0.1) 100%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .friend-card:hover::before {
-    opacity: 1;
-  }
-
-  :global(.dark) .friend-card::before {
-    background: linear-gradient(
-      135deg,
-      transparent 0%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.05) 50%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  }
-</style>

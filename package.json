@@ -25,7 +25,7 @@
   "scripts": {
     "dev": "astro dev",
     "dev:network": "astro dev --host",
-    "build": "rm -rf .astro node_modules/.vite && astro check && astro build",
+    "build": "astro check && astro build",
     "preview": "astro preview",
     "preview:network": "astro preview --host",
     "astro": "astro",
@@ -35,7 +35,9 @@
     "new:blog": "bun run scripts/new-blog.ts",
     "new:thought": "bun run scripts/new-thought.ts",
     "new": "bun run scripts/new-blog.ts",
-    "t": "bun run scripts/new-thought.ts"
+    "t": "bun run scripts/new-thought.ts",
+    "check": "astro check",
+    "verify:content": "node scripts/verify-content.mjs"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",

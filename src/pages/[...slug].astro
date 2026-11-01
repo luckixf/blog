@@ -1,69 +1,70 @@
 ---
-import { type CollectionEntry, getCollection, render } from "astro:content";
-import Comments from "@components/Comments.astro";
-import Container from "@components/Container.astro";
-import FormattedDate from "@components/FormattedDate.astro";
-import TableOfContents from "@components/TableOfContents.astro";
-import { SITE } from "@consts";
-import PageLayout from "@layouts/PageLayout.astro";
-import { formatYMD, readingTime } from "@lib/utils";
+import { type CollectionEntry, getCollection, render } from 'astro:content'
+import Comments from '@components/Comments.astro'
+import Container from '@components/Container.astro'
+import FormattedDate from '@components/FormattedDate.astro'
+import TableOfContents from '@components/TableOfContents.astro'
+import { SITE } from '@consts'
+import PageLayout from '@layouts/PageLayout.astro'
+import { formatYMD, readingTime } from '@lib/utils'
 
 export async function getStaticPaths() {
-	const allPosts = (await getCollection("posts"))
-		.filter((post: CollectionEntry<"posts">) => !post.data.draft)
-		.sort(
-			(a: CollectionEntry<"posts">, b: CollectionEntry<"posts">) =>
-				b.data.date.valueOf() - a.data.date.valueOf(),
-		);
-	return allPosts.map((post: CollectionEntry<"posts">) => ({
-		params: { slug: post.data.slug || post.id },
-		props: post,
-	}));
+  const allPosts = (await getCollection('posts'))
+    .filter((post: CollectionEntry<'posts'>) => !post.data.draft)
+    .sort(
+      (a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) =>
+        b.data.date.valueOf() - a.data.date.valueOf(),
+    )
+  return allPosts.map((post: CollectionEntry<'posts'>) => ({
+    params: { slug: post.data.slug || post.id },
+    props: post,
+  }))
 }
-type Props = CollectionEntry<"posts">;
+type Props = CollectionEntry<'posts'>
 
-const post = Astro.props;
-const { Content } = await render(post);
-const postPath = post.data.slug || post.id;
-const postBody = post.body ?? "";
+const post = Astro.props
+const { Content } = await render(post)
+const postPath = post.data.slug || post.id
+const postBody = post.body ?? ''
 
 // 计算字数
 function countWords(text: string): number {
-	// 移除 HTML 标签
-	const plainText = text.replace(/<[^>]+>/g, "");
-	// 计算中文字符
-	const chineseChars = (plainText.match(/[\u4e00-\u9fa5]/g) || []).length;
-	// 计算英文单词
-	const englishWords = (
-		plainText.replace(/[\u4e00-\u9fa5]/g, " ").match(/[a-zA-Z]+/g) || []
-	).length;
-	return chineseChars + englishWords;
+  // 移除 HTML 标签
+  const plainText = text.replace(/<[^>]+>/g, '')
+  // 计算中文字符
+  const chineseChars = (plainText.match(/[\u4e00-\u9fa5]/g) || []).length
+  // 计算英文单词
+  const englishWords = (
+    plainText.replace(/[\u4e00-\u9fa5]/g, ' ').match(/[a-zA-Z]+/g) || []
+  ).length
+  return chineseChars + englishWords
 }
 
-const wordCount = countWords(postBody);
+const wordCount = countWords(postBody)
 
 // 获取所有文章并排除当前文章
-const allPosts = (await getCollection("posts")).filter(
-	(p: CollectionEntry<"posts">) => !p.data.draft && p.id !== post.id,
-);
+const allPosts = (await getCollection('posts')).filter(
+  (p: CollectionEntry<'posts'>) => !p.data.draft && p.id !== post.id,
+)
 
 // 随机打乱并取 n 篇
 function shuffleArray<T>(array: T[]): T[] {
-	const shuffled = [...array];
-	for (let i = shuffled.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-	}
-	return shuffled;
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
 }
 
 const relatedPosts = shuffleArray(allPosts).slice(
-	0,
-	SITE.NUM_RELATED_POSTS_ON_POST,
-);
+  0,
+  SITE.NUM_RELATED_POSTS_ON_POST,
+)
 
 // 获取当前文章的 URL
-const articleUrl = Astro.url.href;
+const articleUrl = new URL(Astro.url.pathname, Astro.site || Astro.url.origin)
+  .href
 ---
 
 <PageLayout
@@ -72,19 +73,22 @@ const articleUrl = Astro.url.href;
   image={post.data.cover}
 >
   <TableOfContents />
-  <Container>
-    <div class="mb-10 space-y-3">
-      {post.data.cover && (
-        <div class="post-cover animate mb-8 overflow-hidden rounded-xl">
-          <img
-            src={post.data.cover}
-            alt={post.data.title}
-            class="h-auto w-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-      )}
+  <Container class="article-container">
+    <a href="/posts" class="article-breadcrumb">← 返回文章归档</a>
+    <div class="article-header space-y-3">
+      {
+        post.data.cover && (
+          <div class="post-cover animate mb-8 overflow-hidden rounded-xl">
+            <img
+              src={post.data.cover}
+              alt={post.data.title}
+              class="h-auto w-full object-cover"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        )
+      }
       <h1
         class="animate text-2xl leading-tight font-bold text-stone-900 sm:text-3xl lg:text-4xl dark:text-stone-100"
       >
@@ -107,6 +111,11 @@ const articleUrl = Astro.url.href;
           </span>
         </div>
       </div>
+      {
+        post.data.description && (
+          <p class="article-description">{post.data.description}</p>
+        )
+      }
     </div>
 
     <article class="animate post-content">
@@ -196,8 +205,14 @@ const articleUrl = Astro.url.href;
     }
 
     <!-- 评论区 -->
-    <div class="animate mt-10 mb-8 border-t border-stone-200 pt-8 dark:border-stone-800">
-      <h3 class="mb-6 text-base font-semibold text-stone-900 dark:text-stone-100">评论</h3>
+    <div
+      class="animate mt-10 mb-8 border-t border-stone-200 pt-8 dark:border-stone-800"
+    >
+      <h3
+        class="mb-6 text-base font-semibold text-stone-900 dark:text-stone-100"
+      >
+        评论
+      </h3>
       <Comments slug={postPath} title={post.data.title} />
     </div>
   </Container>
