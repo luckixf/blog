@@ -77,6 +77,23 @@ import { PROFILE } from '../../site.config'
       >
     </section>
     <section class="about-section">
+      <h2>关于本站</h2>
+      <p>
+        这里记录我的学习、生活和日常想法。博客使用 <Link
+          href="https://astro.build/"
+          external>Astro</Link
+        > 构建，页面设计参考 <Link
+          href="https://github.com/cworld1/astro-theme-pure"
+          external>Astro Theme Pure</Link
+        >。
+      </p>
+      <p>
+        你可以在 <Link href="https://github.com/luckixf/blog" external
+          >GitHub</Link
+        > 查看本站源码，也可以通过 <Link href="/rss.xml">RSS</Link> 订阅文章。
+      </p>
+    </section>
+    <section class="about-section">
       <h2>Tech</h2>
       {
         TECH_STACK.map((group) => (

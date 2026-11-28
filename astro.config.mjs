@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config'
 import astroExpressiveCode from 'astro-expressive-code'
 import { fileURLToPath } from 'url'
 import rehypeHeadingLinks from './src/lib/rehype/rehype-heading-links.mjs'
+import rehypeResponsiveMedia from './src/lib/rehype/responsive-media.mjs'
 import remarkGithubAlerts from './src/lib/remark/github-alert.mjs'
 import remarkDemoteH1ToH2 from './src/lib/remark/remark-demote-h1.mjs'
 import remarkExternalLinks from './src/lib/remark/remark-external-links.mjs'
@@ -63,7 +64,7 @@ export default defineConfig({
         { allowHostnames: ['blog.luckixf.top', 'luckixf.top'] },
       ],
     ],
-    rehypePlugins: [rehypeHeadingLinks],
+    rehypePlugins: [rehypeHeadingLinks, rehypeResponsiveMedia],
   },
 
   vite: {

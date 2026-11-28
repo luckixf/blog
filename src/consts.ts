@@ -46,7 +46,7 @@ export const PROJECTS: Projects = [
 			{
 				name: "My Blog",
 				href: "https://github.com/luckixf/blog",
-				description: "我的个人博客，基于 Astro Doge 主题",
+				description: "我的个人博客，使用 Astro 构建，页面设计参考 Astro Theme Pure",
 			},
 			{
 				name: "Side Project",

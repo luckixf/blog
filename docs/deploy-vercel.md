@@ -1,6 +1,6 @@
 # Deploy To Vercel
 
-这份模板默认是静态站点，但仓库根目录已经带了 `api/` 和 `vercel.json`，所以可以直接部署到 Vercel，开启评论、留言板、碎碎念点赞和 `/thoughts/new` 在线发布。
+本站采用 Astro 静态构建，仓库根目录保留了 `api/` 和 `vercel.json`。将 `luckixf/blog` 部署到 Vercel 后，可继续使用评论、留言板、碎碎念点赞和 `/thoughts/new` 在线发布。Pure 风格页面适配不改变下述环境变量。
 
 ## 适合什么场景
 

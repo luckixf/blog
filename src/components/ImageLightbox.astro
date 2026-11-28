@@ -1,104 +1,33 @@
 ---
-// 图片灯箱组件 - 点击图片查看全图
+import Icon from '@components/Icon.astro'
 ---
 
-<!-- 灯箱 overlay 容器 -->
-<div id="lightbox-overlay" class="lightbox-overlay" style="display: none;">
-  <button class="lightbox-close" aria-label="关闭">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-  </button>
-  <img src="" alt="" />
-</div>
-
+<button
+  id="image-zoom-close"
+  class="image-zoom-close"
+  type="button"
+  aria-label="关闭图片预览"
+  hidden><Icon name="close" size={24} /></button
+>
 <script>
-  function initImageLightbox() {
-    const overlay = document.getElementById(
-      'lightbox-overlay',
-    ) as HTMLDivElement | null
-    if (!overlay) return
+  import { setupMedia } from '@lib/media-client'
+  import type { TransitionBeforePreparationEvent } from 'astro:transitions/client'
 
-    const lightboxImg = overlay.querySelector('img') as HTMLImageElement
-    const closeBtn = overlay.querySelector('.lightbox-close')
-
-    // 关闭灯箱函数
-    function closeLightbox() {
-      overlay!.classList.remove('active')
-      setTimeout(() => {
-        overlay!.style.display = 'none'
-      }, 300)
+  let media: ReturnType<typeof setupMedia> | undefined
+  document.addEventListener('astro:page-load', () => {
+    media?.destroy()
+    media = setupMedia()
+  })
+  document.addEventListener('astro:before-preparation', (event) => {
+    const navigation = event as TransitionBeforePreparationEvent
+    const loader = navigation.loader
+    navigation.loader = async () => {
+      await media?.close()
+      await loader()
     }
-
-    // 点击 overlay 关闭
-    overlay.addEventListener('click', closeLightbox)
-    closeBtn?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      closeLightbox()
-    })
-
-    // ESC 键关闭
-    function handleEsc(e: KeyboardEvent) {
-      if (e.key === 'Escape' && overlay!.classList.contains('active')) {
-        closeLightbox()
-      }
-    }
-    document.removeEventListener('keydown', handleEsc)
-    document.addEventListener('keydown', handleEsc)
-
-    // 滚动时关闭
-    function handleScroll() {
-      if (overlay!.classList.contains('active')) {
-        closeLightbox()
-      }
-    }
-    window.removeEventListener('scroll', handleScroll)
-    window.addEventListener('scroll', handleScroll)
-
-    // 为所有 article 中的图片添加点击事件
-    const articles = document.querySelectorAll('article')
-    articles.forEach((article) => {
-      const images = article.querySelectorAll('img')
-      images.forEach((img) => {
-        // 检查是否已经绑定过事件
-        if (img.dataset.lightboxBound === 'true') return
-        img.dataset.lightboxBound = 'true'
-
-        // 设置鼠标样式
-        img.style.cursor = 'zoom-in'
-
-        img.addEventListener('click', (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          const src = img.src
-          const alt = img.alt
-          lightboxImg.src = src
-          lightboxImg.alt = alt
-          overlay.style.display = 'flex'
-          // 触发动画
-          requestAnimationFrame(() => {
-            overlay.classList.add('active')
-          })
-        })
-      })
-    })
-  }
-
-  // 页面加载时初始化
-  document.addEventListener('DOMContentLoaded', initImageLightbox)
-  document.addEventListener('astro:after-swap', initImageLightbox)
-
-  // 立即执行一次
-  initImageLightbox()
+  })
+  document.addEventListener('astro:before-swap', () => {
+    media?.destroy()
+    media = undefined
+  })
 </script>

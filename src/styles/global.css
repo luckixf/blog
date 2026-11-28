@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Bundled CSS survives Astro navigation; avoid runtime-injected styles. */
+@import 'medium-zoom/dist/style.css';
 @plugin '@tailwindcss/typography';
 
 @theme {
@@ -54,6 +56,8 @@ html {
 }
 body {
   margin: 0;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -143,6 +147,7 @@ mark {
 
 /* A quiet header shared by every page. */
 .site-header {
+  padding-top: env(safe-area-inset-top);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -433,7 +438,7 @@ mark {
 .home-thoughts > li:hover {
   border-color: rgb(var(--accent-rgb) / 0.5);
 }
-.home-thoughts a {
+.home-thoughts > li > a {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -470,6 +475,8 @@ mark {
   margin-top: auto;
 }
 .home-thought-image {
+  flex-shrink: 0;
+  background: var(--surface-soft);
   width: 100%;
   height: 108px;
   object-fit: cover;
@@ -835,20 +842,66 @@ article .markdown-alert-caution {
   padding: 12px;
   margin-bottom: 8px;
 }
-.lightbox-overlay {
-  @apply fixed inset-0 z-[9999] flex cursor-zoom-out items-center justify-center bg-black/90 opacity-0 transition-opacity duration-300;
+.medium-zoom-overlay {
+  z-index: 1000;
 }
-.lightbox-overlay.active {
-  opacity: 1;
+.medium-zoom-image--opened {
+  z-index: 1001;
 }
-.lightbox-overlay img {
-  max-height: 90vh;
-  max-width: 90vw;
-  object-fit: contain;
+.image-zoom-close {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  background: rgb(255 255 255 / 0.15);
+}
+.post-content,
+.thought-content,
+.thought-card,
+.home-thoughts > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:is(.post-content, .thought-content) div:has(> img) {
+  flex-wrap: wrap;
+}
+:is(.post-content, .thought-content) img {
+  height: auto;
+  min-width: 0;
+}
+img[data-media-state='loading'],
+img[data-media-state='slow'],
+img[data-media-state='error'] {
+  min-height: 80px;
+  background: var(--surface-soft);
+}
+.media-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  flex-basis: 100%;
+  padding: 8px 12px;
+  margin-block: 8px;
+  border: 1px solid var(--border);
   border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface-soft);
 }
-.lightbox-close {
-  @apply absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white;
+.media-notice :is(button, a) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent);
+  text-decoration: underline;
 }
 html #back-to-top {
   pointer-events: none;
@@ -881,6 +934,14 @@ html.search-open {
   background: rgb(15 23 32 / 0.35);
   backdrop-filter: blur(6px);
 }
+.search-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.search-input-row,
+.search-footer {
+  flex-shrink: 0;
+}
 .search-input-row {
   display: flex;
   gap: 13px;
@@ -905,6 +966,8 @@ html.search-open {
   color: var(--subtle);
 }
 .search-results {
+  min-height: 0;
+  overscroll-behavior: contain;
   max-height: min(420px, 55dvh);
   overflow-y: auto;
   padding: 10px;
@@ -1031,7 +1094,7 @@ html.search-open {
     margin-inline: 40px;
   }
 }
-@media (max-width: 767px) {
+@media (max-width: 899px) {
   .content-container {
     padding-inline: 24px;
   }
@@ -1050,8 +1113,8 @@ html.search-open {
     gap: 2px;
   }
   .icon-button {
-    width: 38px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
   }
   .desktop-nav {
     display: none;
@@ -1060,6 +1123,8 @@ html.search-open {
     display: inline-flex;
   }
   .mobile-navigation:not([hidden]) {
+    max-height: calc(100dvh - 70px - env(safe-area-inset-top));
+    overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px 18px;
@@ -1137,7 +1202,7 @@ html.search-open {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  .home-thoughts a {
+  .home-thoughts > li > a {
     padding: 17px 18px;
   }
   .home-thoughts p {
@@ -1207,6 +1272,18 @@ html.search-open {
   .social-links {
     gap: 14px;
   }
+  input,
+  textarea,
+  select,
+  #search-input {
+    font-size: 16px;
+  }
+  .search-dialog {
+    margin-top: max(16px, env(safe-area-inset-top));
+    max-height: calc(
+      100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+    );
+  }
 }
 @media (max-width: 359px) {
   .content-container,
@@ -1221,7 +1298,7 @@ html.search-open {
     font-size: 12px;
   }
   .icon-button {
-    width: 32px;
+    width: 44px;
   }
   .section-heading h2 > span {
     display: none;
